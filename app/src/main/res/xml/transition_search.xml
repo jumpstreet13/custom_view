@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionSceen xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+            motion:constraintSetEnd="@id/end"
+            motion:constraintSetStart="@id/start"
+            motion:duration="1000">
+
+        <OnClick motion:target="@+id/ivPost"/>
+
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+
+        <Constraint
+                android:id="@id/ivPost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                android:layout_marginBottom="24dp"
+                motion:layout_constraintTop_toTopOf="parent"
+                motion:layout_constraintBottom_toBottomOf="parent"
+                motion:layout_constraintEnd_toStartOf="@id/ivUsers"
+                motion:layout_constraintStart_toStartOf="parent"/>
+
+        <Constraint
+                android:id="@id/ivUsers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                android:layout_marginBottom="24dp"
+                motion:layout_constraintTop_toTopOf="parent"
+                motion:layout_constraintBottom_toBottomOf="parent"
+                motion:layout_constraintStart_toEndOf="@id/ivPost"
+                motion:layout_constraintEnd_toStartOf="@id/ivTags"/>
+
+        <Constraint
+                android:id="@id/ivTags"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                android:layout_marginBottom="24dp"
+                motion:layout_constraintTop_toTopOf="parent"
+                motion:layout_constraintBottom_toBottomOf="parent"
+                motion:layout_constraintStart_toEndOf="@id/ivUsers"
+                motion:layout_constraintEnd_toStartOf="@id/ivPlace"/>
+
+        <Constraint
+                android:id="@id/ivPlace"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                android:layout_marginBottom="24dp"
+                motion:layout_constraintTop_toTopOf="parent"
+                motion:layout_constraintBottom_toBottomOf="parent"
+                motion:layout_constraintStart_toEndOf="@id/ivTags"
+                motion:layout_constraintEnd_toEndOf="parent"/>
+
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+
+        <Constraint
+                android:id="@id/ivPost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                android:layout_marginBottom="24dp"
+                motion:layout_constraintTop_toTopOf="parent"
+                motion:layout_constraintEnd_toStartOf="@id/ivUsers"
+                motion:layout_constraintStart_toStartOf="parent"/>
+
+        <Constraint
+                android:id="@id/ivUsers"
+                android:layout_marginTop="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                motion:layout_constraintTop_toTopOf="parent"
+                motion:layout_constraintBottom_toBottomOf="parent"
+                motion:layout_constraintStart_toEndOf="@id/ivPost"
+                motion:layout_constraintEnd_toStartOf="@id/ivTags"/>
+
+        <Constraint
+                android:id="@id/ivTags"
+                android:layout_marginTop="24dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                motion:layout_constraintTop_toTopOf="parent"
+                motion:layout_constraintStart_toEndOf="@id/ivUsers"
+                motion:layout_constraintEnd_toStartOf="@id/ivPlace"/>
+
+        <Constraint
+                android:id="@id/ivPlace"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                android:layout_marginBottom="24dp"
+                motion:layout_constraintTop_toTopOf="parent"
+                motion:layout_constraintStart_toEndOf="@id/ivTags"
+                motion:layout_constraintEnd_toEndOf="parent"/>
+
+    </ConstraintSet>
+
+</MotionSceen>
