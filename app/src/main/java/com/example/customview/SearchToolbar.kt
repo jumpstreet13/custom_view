@@ -3,9 +3,9 @@ package com.example.customview
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.constraintlayout.motion.widget.MotionLayout
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.layout_search_toolbarl.view.*
@@ -14,11 +14,14 @@ class SearchToolbar : FrameLayout, MotionLayout.TransitionListener {
 
     //параметры для квадрата
     private val paintRect = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val rect = RectF()
+    private val rectBack = RectF()
     private val path = Path()
+
     //параметры для кривой элемента
-    private val pathBz = Path()
-    private val paintBz = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val rectEl = Rect()
+    private val paintEl = Paint(Paint.ANTI_ALIAS_FLAG)
+
+    private val radius = 24
 
     private val completeDisposable = CompositeDisposable()
 
@@ -37,15 +40,15 @@ class SearchToolbar : FrameLayout, MotionLayout.TransitionListener {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        paintRect.color = Color.GREEN
+        paintRect.color = Color.BLUE
         paintRect.style = Paint.Style.FILL
 
         val bottomUsers = ivUsers.bottom.toFloat()
         val bottomPost = ivPost.bottom.toFloat()
 
         //рисуем квадрат
-        rect.set(0f, 0f, width.toFloat(), bottomPost)
-        canvas?.drawRect(rect, paintRect)
+        rectBack.set(0f, 0f, width.toFloat(), bottomPost)
+        canvas?.drawRect(rectBack, paintRect)
 
         //рисуем полукруг
         path.reset()
@@ -53,20 +56,8 @@ class SearchToolbar : FrameLayout, MotionLayout.TransitionListener {
         path.quadTo(width / 2.toFloat(), bottomUsers, width.toFloat(), bottomPost)
         canvas?.drawPath(path, paintRect)
 
-        //рисуем кривую безье для конкретного элемента
-        paintBz.color = Color.BLACK
-        paintBz.style = Paint.Style.FILL
+        paintElement(canvas, ivUsers)
 
-        pathBz.reset()
-        pathBz.moveTo(ivUsers.left.toFloat(), ivUsers.bottom.toFloat())
-        pathBz.quadTo(
-            (ivUsers.left + (ivUsers.right - ivUsers.left) / 2).toFloat(), ivUsers.top.toFloat(),
-            ivUsers.right.toFloat(), ivUsers.bottom.toFloat()
-        )
-
-        Log.d("onDraw", "$bottomUsers")
-
-        canvas?.drawPath(pathBz, paintBz)
     }
 
     override fun onTransitionTrigger(p0: MotionLayout?, p1: Int, p2: Boolean, p3: Float) {
@@ -94,6 +85,48 @@ class SearchToolbar : FrameLayout, MotionLayout.TransitionListener {
         View.inflate(context, R.layout.layout_search_toolbarl, this)
         setWillNotDraw(false)
         motion.setTransitionListener(this)
+    }
+
+    private fun paintElement(canvas: Canvas?, view: ImageView) {
+        //рисуем сложную фигуру
+        paintEl.color = Color.GRAY
+        paintEl.style = Paint.Style.FILL
+
+        //большой круг для элемента
+        canvas?.drawCircle(
+            (view.left + (view.right - view.left) / 2).toFloat(),
+            view.bottom.toFloat(),
+            (view.bottom - view.top) / 2.toFloat(),
+            paintEl
+        )
+
+        //квадрат для элемента
+        rectEl.set(
+            view.left - radius,
+            view.bottom - radius,
+            view.right + radius,
+            view.bottom
+        )
+
+        canvas?.drawRect(rectEl, paintEl)
+
+        //первый круг для сложного элемента
+
+        canvas?.drawCircle(
+            (view.left - radius).toFloat(),
+            (view.bottom - radius).toFloat(),
+            radius.toFloat(),
+            paintRect
+        )
+
+        //второй круг для сложного элемента
+
+        canvas?.drawCircle(
+            (view.right + radius).toFloat(),
+            (view.bottom - radius).toFloat(),
+            radius.toFloat(),
+            paintRect
+        )
     }
 
 }
