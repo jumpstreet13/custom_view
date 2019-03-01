@@ -3,12 +3,14 @@ package com.example.customview
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.constraintlayout.motion.widget.MotionLayout
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.android.synthetic.main.layout_search_toolbarl.view.*
+import kotlin.math.sqrt
 
 class SearchToolbar : FrameLayout, MotionLayout.TransitionListener {
 
@@ -21,7 +23,8 @@ class SearchToolbar : FrameLayout, MotionLayout.TransitionListener {
     private val rectEl = Rect()
     private val paintEl = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val radius = 24
+    private val radiusSmall = 24
+    private val radiusBig = 1100
 
     private val completeDisposable = CompositeDisposable()
 
@@ -46,6 +49,8 @@ class SearchToolbar : FrameLayout, MotionLayout.TransitionListener {
         val bottomUsers = ivUsers.bottom.toFloat()
         val bottomPost = ivPost.bottom.toFloat()
 
+        //val t = radiusBig - sqrt(radiusBig * radiusBig - width * width / 4f).toDouble()
+
         //рисуем квадрат
         rectBack.set(0f, 0f, width.toFloat(), bottomPost)
         canvas?.drawRect(rectBack, paintRect)
@@ -53,7 +58,14 @@ class SearchToolbar : FrameLayout, MotionLayout.TransitionListener {
         //рисуем полукруг
         path.reset()
         path.moveTo(0f, bottomPost)
-        path.quadTo(width / 2.toFloat(), bottomUsers, width.toFloat(), bottomPost)
+        path.quadTo(width / 2.toFloat(), height.toFloat(), width.toFloat(), bottomPost)
+
+        val t = ivPost.bottom
+        if (t != 0) {
+            val r = 0.5 * (t + width * width / (4 * t))
+            val y = sqrt(r * r - bottomPost*bottomPost)
+            Log.d("SearchToolbar", y.toString())
+        }
         canvas?.drawPath(path, paintRect)
 
         paintElement(canvas, ivUsers)
@@ -102,9 +114,9 @@ class SearchToolbar : FrameLayout, MotionLayout.TransitionListener {
 
         //квадрат для элемента
         rectEl.set(
-            view.left - radius,
-            view.bottom - radius,
-            view.right + radius,
+            view.left - radiusSmall,
+            view.bottom - radiusSmall,
+            view.right + radiusSmall,
             view.bottom
         )
 
@@ -113,18 +125,18 @@ class SearchToolbar : FrameLayout, MotionLayout.TransitionListener {
         //первый круг для сложного элемента
 
         canvas?.drawCircle(
-            (view.left - radius).toFloat(),
-            (view.bottom - radius).toFloat(),
-            radius.toFloat(),
+            (view.left - radiusSmall).toFloat(),
+            (view.bottom - radiusSmall).toFloat(),
+            radiusSmall.toFloat(),
             paintRect
         )
 
         //второй круг для сложного элемента
 
         canvas?.drawCircle(
-            (view.right + radius).toFloat(),
-            (view.bottom - radius).toFloat(),
-            radius.toFloat(),
+            (view.right + radiusSmall).toFloat(),
+            (view.bottom - radiusSmall).toFloat(),
+            radiusSmall.toFloat(),
             paintRect
         )
     }
