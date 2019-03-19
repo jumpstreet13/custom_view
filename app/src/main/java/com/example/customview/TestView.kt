@@ -19,7 +19,7 @@ class TestView : View {
     private var R0 = 0f
     private val R1 = 200f
     private val R2 = 50f
-    private val angle = 30.0
+    private val angle = 120.0
 
     constructor(context: Context) : super(context) {
         initial()
@@ -68,44 +68,45 @@ class TestView : View {
         canvas?.drawCircle(width / 2f, width / 2f, R0, blue)
 
         circle(canvas, angle)
-        smallCircle(canvas, angle)
-        //rectangle(canvas, angle)
     }
 
     //рисуем маленькие круги
-    private fun smallCircle(canvas: Canvas?, angle: Double) {
+    private fun circle(canvas: Canvas?, angle: Double) {
         val cosA = ((R0 * R0 + (R0 - R2) * (R0 - R2) - (R2 + R1) * (R2 + R1))) / (2.0 * R0 * (R0 - R2))
         val A = acos(cosA)
         val B = PI * angle / 180.0
 
+        //находим центр левого круга
         val xl = R0 - (cos(B - A)) * (R0 - R2)
-        val yl = sin(B - A) * (R0 - R2)
+        val yl = R0 + sin(B - A) * (R0 - R2)
 
+        //находим центр правого круга
         val xr = R0 - (cos(B + A)) * (R0 - R2)
-        val yr = sin(B + A) * (R0 - R2)
+        val yr = R0 + sin(B + A) * (R0 - R2)
 
-        canvas?.drawCircle(xl.toFloat(), yl.toFloat() + R0, R2, red)
-        canvas?.drawCircle(xr.toFloat(), yr.toFloat() + R0, R2, red)
-    }
-
-    //рисуем средний круг
-    private fun circle(canvas: Canvas?, angle: Double) {
-        val B = PI * angle / 180
-        val y = sin(B) * R0
+        //находим центр среднего круга
         val x = (1 - cos(B)) * R0
-        canvas?.drawCircle(x.toFloat(), y.toFloat() + R0, R1, white)
-    }
+        val y = R0 + sin(B) * R0
 
-    /*//рисуем прямоугольник
-    private fun rectangle(canvas: Canvas?, angle: Double) {
-        val x = width / 2f
-        val y = width / 2f
+        //находим точки основания трапеции
+        val xtr = R0 * (1 - cos(A + B) / cos(A))
+        val ytr = R0 * (1 + sin(A + B) / cos(A))
+        val xtl = R0 * (1 - cos(B - A) / cos(A))
+        val ytl = R0 * (1 + sin(B - A) / cos(A))
 
-        pathRect.moveTo(x - 100, y - 100)
-        pathRect.lineTo(x + 100, y - 100)
-        pathRect.lineTo(x + 100, y + 100)
-        pathRect.lineTo(x - 100, y + 100)
+        //помечаем точки для трапеции
+        pathRect.moveTo(xl.toFloat(), yl.toFloat())
+        pathRect.lineTo(xr.toFloat(), yr.toFloat())
+        pathRect.lineTo(xtr.toFloat(), ytr.toFloat())
+        pathRect.lineTo(xtl.toFloat(), ytl.toFloat())
 
+        //рисуем трапецию
         canvas?.drawPath(pathRect, black)
-    }*/
+        //рисуем левый маленький круг
+        canvas?.drawCircle(xl.toFloat(), yl.toFloat(), R2, red)
+        //рисуем правый маленький круг
+        canvas?.drawCircle(xr.toFloat(), yr.toFloat(), R2, red)
+        //рисуем средний круг
+        canvas?.drawCircle(x.toFloat(), y.toFloat(), R1, white)
+    }
 }
