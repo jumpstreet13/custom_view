@@ -12,12 +12,12 @@ class TestView : View {
     private lateinit var blue: Paint
     private lateinit var white: Paint
 
-    private lateinit var pathRect: Path
+    private lateinit var pathTrapezium: Path
 
-    private var R0 = 0f//радиус большого круга
-    private val R1 = 100f//радиус среднего круга
-    private val R2 = 50f//радиус маленьких кругов
-    private val angle = PI / 4
+    private var R0 = 0f //радиус большого круга
+    private var R1 = 100f //радиус среднего круга
+    private var R2 = 50f //радиус маленьких кругов
+    private val angle = 3 * PI / 4
 
     constructor(context: Context) : super(context) {
         initial()
@@ -44,20 +44,20 @@ class TestView : View {
                 color = Color.WHITE
             }
 
-        pathRect = Path()
+        pathTrapezium = Path()
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
         R0 = width / 2f
 
+        //рисуем круг
         canvas?.drawCircle(width / 2f, width / 2f, R0, blue)
 
-        circle(canvas, angle)
+        backgroundItem(canvas, angle)
     }
 
-    //рисуем маленькие круги
-    private fun circle(canvas: Canvas?, angle: Double) {
+    private fun backgroundItem(canvas: Canvas?, angle: Double) {
         val cosA = ((R0 * R0 + (R0 - R2) * (R0 - R2) - (R2 + R1) * (R2 + R1))) / (2.0 * R0 * (R0 - R2))
         val A = acos(cosA)
         val B = angle
@@ -87,13 +87,13 @@ class TestView : View {
         val ytd = R0 + sin(B + A) * (R0 + R2 * (tan(A) - 1))
 
         //помечаем точки для трапеции
-        pathRect.moveTo(xtc.toFloat(), ytc.toFloat())
-        pathRect.lineTo(xtd.toFloat(), ytd.toFloat())
-        pathRect.lineTo(xta.toFloat(), yta.toFloat())
-        pathRect.lineTo(xtb.toFloat(), ytb.toFloat())
+        pathTrapezium.moveTo(xtc.toFloat(), ytc.toFloat())
+        pathTrapezium.lineTo(xtd.toFloat(), ytd.toFloat())
+        pathTrapezium.lineTo(xta.toFloat(), yta.toFloat())
+        pathTrapezium.lineTo(xtb.toFloat(), ytb.toFloat())
 
         //рисуем трапецию
-        canvas?.drawPath(pathRect, white)
+        canvas?.drawPath(pathTrapezium, white)
         //рисуем левый маленький круг
         canvas?.drawCircle(xl.toFloat(), yl.toFloat(), R2, blue)
         //рисуем правый маленький круг
