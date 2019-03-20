@@ -6,20 +6,18 @@ import android.view.View
 import android.graphics.*
 import java.lang.Math.*
 
-
+//view правильно рисуется при R1 >= 2*R2
 class TestView : View {
 
     private lateinit var blue: Paint
     private lateinit var white: Paint
-    private lateinit var red: Paint
-    private lateinit var black: Paint
 
     private lateinit var pathRect: Path
 
-    private var R0 = 0f
-    private val R1 = 200f
-    private val R2 = 50f
-    private val angle = 120.0//угол в градусах(переделать в pi)
+    private var R0 = 0f//радиус большого круга
+    private val R1 = 100f//радиус среднего круга
+    private val R2 = 50f//радиус маленьких кругов
+    private val angle = PI / 4
 
     constructor(context: Context) : super(context) {
         initial()
@@ -46,18 +44,6 @@ class TestView : View {
                 color = Color.WHITE
             }
 
-        red = Paint(Paint.ANTI_ALIAS_FLAG)
-            .apply {
-                strokeWidth = 3f
-                color = Color.BLUE
-            }
-
-        black = Paint(Paint.ANTI_ALIAS_FLAG)
-            .apply {
-                strokeWidth = 3f
-                color = Color.WHITE
-            }
-
         pathRect = Path()
     }
 
@@ -74,7 +60,7 @@ class TestView : View {
     private fun circle(canvas: Canvas?, angle: Double) {
         val cosA = ((R0 * R0 + (R0 - R2) * (R0 - R2) - (R2 + R1) * (R2 + R1))) / (2.0 * R0 * (R0 - R2))
         val A = acos(cosA)
-        val B = PI * angle / 180.0
+        val B = angle
 
         //находим центр левого круга
         val xl = R0 - (cos(B - A)) * (R0 - R2)
@@ -107,11 +93,11 @@ class TestView : View {
         pathRect.lineTo(xtb.toFloat(), ytb.toFloat())
 
         //рисуем трапецию
-        canvas?.drawPath(pathRect, black)
+        canvas?.drawPath(pathRect, white)
         //рисуем левый маленький круг
-        canvas?.drawCircle(xl.toFloat(), yl.toFloat(), R2, red)
+        canvas?.drawCircle(xl.toFloat(), yl.toFloat(), R2, blue)
         //рисуем правый маленький круг
-        canvas?.drawCircle(xr.toFloat(), yr.toFloat(), R2, red)
+        canvas?.drawCircle(xr.toFloat(), yr.toFloat(), R2, blue)
         //рисуем средний круг
         canvas?.drawCircle(x.toFloat(), y.toFloat(), R1, white)
     }
