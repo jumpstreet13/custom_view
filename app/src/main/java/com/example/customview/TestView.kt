@@ -19,7 +19,7 @@ class TestView : View {
     private var R0 = 0f
     private val R1 = 200f
     private val R2 = 50f
-    private val angle = 120.0
+    private val angle = 120.0//угол в градусах(переделать в pi)
 
     constructor(context: Context) : super(context) {
         initial()
@@ -49,13 +49,13 @@ class TestView : View {
         red = Paint(Paint.ANTI_ALIAS_FLAG)
             .apply {
                 strokeWidth = 3f
-                color = Color.RED
+                color = Color.BLUE
             }
 
         black = Paint(Paint.ANTI_ALIAS_FLAG)
             .apply {
                 strokeWidth = 3f
-                color = Color.BLACK
+                color = Color.WHITE
             }
 
         pathRect = Path()
@@ -89,16 +89,22 @@ class TestView : View {
         val y = R0 + sin(B) * R0
 
         //находим точки основания трапеции
-        val xtr = R0 * (1 - cos(A + B) / cos(A))
-        val ytr = R0 * (1 + sin(A + B) / cos(A))
-        val xtl = R0 * (1 - cos(B - A) / cos(A))
-        val ytl = R0 * (1 + sin(B - A) / cos(A))
+        val xta = R0 * (1 - cos(A + B) / cos(A))
+        val yta = R0 * (1 + sin(A + B) / cos(A))
+        val xtb = R0 * (1 - cos(B - A) / cos(A))
+        val ytb = R0 * (1 + sin(B - A) / cos(A))
+
+        //находим точки вершины трапеции
+        val xtc = R0 - cos(B - A) * (R0 + R2 * (tan(A) - 1))
+        val ytc = R0 + sin(B - A) * (R0 + R2 * (tan(A) - 1))
+        val xtd = R0 - cos(B + A) * (R0 + R2 * (tan(A) - 1))
+        val ytd = R0 + sin(B + A) * (R0 + R2 * (tan(A) - 1))
 
         //помечаем точки для трапеции
-        pathRect.moveTo(xl.toFloat(), yl.toFloat())
-        pathRect.lineTo(xr.toFloat(), yr.toFloat())
-        pathRect.lineTo(xtr.toFloat(), ytr.toFloat())
-        pathRect.lineTo(xtl.toFloat(), ytl.toFloat())
+        pathRect.moveTo(xtc.toFloat(), ytc.toFloat())
+        pathRect.lineTo(xtd.toFloat(), ytd.toFloat())
+        pathRect.lineTo(xta.toFloat(), yta.toFloat())
+        pathRect.lineTo(xtb.toFloat(), ytb.toFloat())
 
         //рисуем трапецию
         canvas?.drawPath(pathRect, black)
