@@ -4,10 +4,11 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.graphics.*
+import android.util.Log
 import android.view.ViewTreeObserver
 import java.lang.Math.*
 
-class TestView : View {
+class CircleView : View {
 
     private lateinit var blue: Paint
     private lateinit var white: Paint
@@ -18,8 +19,8 @@ class TestView : View {
 
     private var R0 = 0f //радиус большого круга
     private var R1 = 100f //радиус среднего круга
-    private var R2 = 50f //радиус маленьких кругов
-    private val angle = 2 * PI / 5
+    private var R2 = 40f //радиус маленьких кругов
+    private val angle = 3 * PI / 4
 
     private var xDeviation = 0f //отклонение от начала по x координат
     private var yDeviation = 0f //отклонение от начала по y координат
@@ -65,10 +66,8 @@ class TestView : View {
 
         this.viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                R0 = width / 1f
-                xDeviation = -width / 2f
-                yDeviation = -1.75f * width
-                this@TestView.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                R0 = width / 2f
+                this@CircleView.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
 
         })
@@ -79,8 +78,20 @@ class TestView : View {
 
         //рисуем круг
         canvas?.drawCircle(R0 + xDeviation, R0 + yDeviation, R0, blue)
-
+        //рисуем вырез
         backgroundItem(canvas, angle)
+
+        setBackgroundColor(Color.WHITE)
+    }
+
+    fun setSmallCircle(r: Float) {
+        R1 = r
+        invalidate()
+    }
+
+    fun setCirle(r: Float) {
+        R2 = r
+        invalidate()
     }
 
     private fun backgroundItem(canvas: Canvas?, angle: Double) {
@@ -107,12 +118,15 @@ class TestView : View {
         val ytb = R0 * (1 + sin(B - A) / cos(A))
 
         //находим точки вершины трапеции
-        val xtc = R0 - cos(B - A) * (R0 + R2 * (tan(A) - 1))
-        val ytc = R0 + sin(B - A) * (R0 + R2 * (tan(A) - 1))
-        val xtd = R0 - cos(B + A) * (R0 + R2 * (tan(A) - 1))
-        val ytd = R0 + sin(B + A) * (R0 + R2 * (tan(A) - 1))
+        val cosW = ((R0 - R2) * (R0 - R2) + (R1 + R2) * (R1 + R2) - R0 * R0) / (2.0 * (R0 - R2) * (R1 + R2))
+        val W = acos(cosW)
+        val xtd = R0 + sin(B - A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
+        val ytd = R0 - cos(B - A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
+        val xtc = R0 + sin(B + A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
+        val ytc = R0 - cos(B + A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
 
         //помечаем точки для трапеции
+        pathTrapezium.reset()
         pathTrapezium.moveTo(xtc.toFloat() + xDeviation, ytc.toFloat() + yDeviation)
         pathTrapezium.lineTo(xtd.toFloat() + xDeviation, ytd.toFloat() + yDeviation)
         pathTrapezium.lineTo(xta.toFloat() + xDeviation, yta.toFloat() + yDeviation)

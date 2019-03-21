@@ -3,10 +3,24 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:background="@android:color/white">
+              android:background="@android:color/darker_gray">
 
-    <com.example.customview.TestView
+    <com.example.customview.CircleView
+            android:id="@+id/circleView"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_gravity="center_horizontal"/>
+
+    <SeekBar
+            android:id="@+id/circleSeek"
+            android:layout_margin="24dp"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="wrap_content"/>
+
+    <SeekBar
+            android:id="@+id/smallCircleSeek"
+            android:layout_width="match_parent"
+            android:layout_margin="24dp"
+            android:layout_height="wrap_content"/>
 
 </LinearLayout>
