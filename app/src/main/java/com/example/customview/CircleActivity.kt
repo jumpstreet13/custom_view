@@ -16,15 +16,6 @@ class CircleActivity : AppCompatActivity() {
         circleView.setSmallCircle(0f)
         circleView.setCirle(0f)
 
-        circleView.setOnTouchListener(object : View.OnTouchListener {
-            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-
-                event?.let { circleView.setXY(it.x.toDouble(), it.y.toDouble()) }
-                return false
-            }
-
-        })
-
         circleSeek.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
 
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {

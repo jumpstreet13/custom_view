@@ -71,6 +71,8 @@ class CircleView : View {
             }
 
         })
+
+        setBackgroundColor(Color.WHITE)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -80,8 +82,6 @@ class CircleView : View {
         canvas?.drawCircle(R0 + xDeviation, R0 + yDeviation, R0, blue)
         //рисуем вырез
         backgroundItem(canvas, angle)
-
-        setBackgroundColor(Color.WHITE)
     }
 
     fun setSmallCircle(r: Float) {
@@ -91,12 +91,6 @@ class CircleView : View {
 
     fun setCirle(r: Float) {
         R2 = r
-        invalidate()
-    }
-
-    //delete
-    fun setXY(x: Double, y: Double) {
-        val cosH = (R0 - x) / sqrt((R0 + x) * (R0 + x) + (R0 - y) * (R0 - y))
         invalidate()
     }
 

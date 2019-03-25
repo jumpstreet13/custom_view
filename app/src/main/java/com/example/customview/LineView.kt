@@ -8,11 +8,16 @@ import android.graphics.Path
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewTreeObserver
+import java.lang.Math.cos
+import java.lang.Math.sin
+import kotlin.math.PI
+import kotlin.math.acos
+import kotlin.math.sqrt
 
 class LineView : View {
 
-    private val blue = Paint()
-    private val red = Paint()
+    private val blue = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val red = Paint(Paint.ANTI_ALIAS_FLAG)
     private val path = Path()
     private val pathC = Path()
     private lateinit var quad: Quad
@@ -44,51 +49,95 @@ class LineView : View {
         }
 
         blue.apply {
-            color = Color.BLUE
+            color = Color.WHITE
             strokeWidth = 3f
-            style = Paint.Style.STROKE
+            style = Paint.Style.FILL
         }
 
         viewTreeObserver?.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 Px1 = width / 2f
-                Py1 = width / 4f
+                Py1 = height / 4f
                 Px2 = width / 1f
+                Py0 = height / 8f
+                Py2 = height / 8f
                 quad = Quad(Px0, Py0, Px1, Py1, Px2, Py2)
                 viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
 
         })
+
+        setBackgroundColor(Color.WHITE)
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
+        path.reset()
         path.moveTo(Px0, Py0)
         path.quadTo(Px1, Py1, Px2, Py2)
 
+        canvas?.drawRect(0f, 0f, width / 1f, height / 8f, red)
         canvas?.drawPath(path, red)
 
-        val x = quad.getX(0.5f)
-        val y = quad.getY(0.5f)
+        drawShape(.8f, canvas)
+    }
 
-        val xl = quad.getX(0.45f)
-        val yl = quad.getY(0.45f)
-        val xr = quad.getX(0.55f)
-        val yr = quad.getY(0.55f)
+    fun setProgress(progress: Float) {
+        Py1 = height / (4f * (1 + progress))
+        quad = Quad(Px0, Py0, Px1, Py1, Px2, Py2)
+        invalidate()
+    }
 
-        val xlc = quad.getX(0.47f)
-        val ylc = quad.getY(0.47f)
-        val xrc = quad.getX(0.53f)
-        val yrc = quad.getY(0.53f)
+    private fun drawShape(t: Float, canvas: Canvas?) {
+        val x = quad.getX(t)
+        val y = quad.getY(t)
 
-        canvas?.drawCircle(x, y, 5f, blue)
-        canvas?.drawCircle(xr, yr, 5f, blue)
-        canvas?.drawCircle(xl, yl, 5f, blue)
+        //находим левые точки фигуры
+        val xl = quad.getX(t - 0.05f)
+        val yl = quad.getY(t - 0.05f)
 
+        //находим правые точки фигуры
+        val xr = quad.getX(t + 0.05f)
+        val yr = quad.getY(t + 0.05f)
+
+        val a = sqrt((xl - x) * (xl - x) + (yl - y) * (yl - y))
+        val l = yl - y
+        val k = xl - x
+        val b = 50f
+
+        val cosA = if (l == 0f) 0.00001 else (a * a + l * l - k * k) / (2.0 * a * l)
+
+        val A = acos(cosA)
+
+        //координаты вершины рисуемой фигуры
+        val xt = x - b * sin(PI / 2 - A).toFloat()
+        val yt = y - b * cos(PI / 2 - A).toFloat()
+
+        val xp = x - xt
+        val yp = y - yt
+
+        val xa = xr - xp * 3 / 4
+        val ya = yr - yp * 3 / 4
+        val xb = xl - xp * 3 / 4
+        val yb = yl - yp * 3 / 4
+
+        val xc = (x + xl) / 2
+        val yc = (y + yl) / 2
+        val xd = (x + xr) / 2
+        val yd = (y + yr) / 2
+
+        //строим купол
+        pathC.reset()
         pathC.moveTo(xl, yl)
-        pathC.cubicTo(xlc, ylc, xlc, ylc - 50f, x, y - 50f)
-        pathC.cubicTo(xrc, yrc- 50, x, y , xr, yr)
+        pathC.cubicTo(xc, yc, xb, yb, xt, yt)
+        pathC.cubicTo(xa, ya, xd, yd, xr, yr)
+        pathC.lineTo(xl, yl)
+        pathC.lineTo(xr, yr)
+        pathC.lineTo(xr + 20f, yr + 20f)
+        pathC.lineTo(xl - 20f, yl + 20f)
+
+        //рисуем купол
         canvas?.drawPath(pathC, blue)
 
     }
