@@ -20,7 +20,7 @@ class CircleView : View {
     private var R0 = 0f //радиус большого круга
     private var R1 = 100f //радиус среднего круга
     private var R2 = 40f //радиус маленьких кругов
-    private val angle = 3 * PI / 4
+    private var angle = PI / 4
 
     private var xDeviation = 0f //отклонение от начала по x координат
     private var yDeviation = 0f //отклонение от начала по y координат
@@ -94,6 +94,12 @@ class CircleView : View {
         invalidate()
     }
 
+    //delete
+    fun setXY(x: Double, y: Double) {
+        val cosH = (R0 - x) / sqrt((R0 + x) * (R0 + x) + (R0 - y) * (R0 - y))
+        invalidate()
+    }
+
     private fun backgroundItem(canvas: Canvas?, angle: Double) {
         val cosA = ((R0 * R0 + (R0 - R2) * (R0 - R2) - (R2 + R1) * (R2 + R1))) / (2.0 * R0 * (R0 - R2))
         val A = acos(cosA)
@@ -120,10 +126,10 @@ class CircleView : View {
         //находим точки вершины трапеции
         val cosW = ((R0 - R2) * (R0 - R2) + (R1 + R2) * (R1 + R2) - R0 * R0) / (2.0 * (R0 - R2) * (R1 + R2))
         val W = acos(cosW)
-        val xtd = R0 + sin(B - A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
-        val ytd = R0 - cos(B - A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
-        val xtc = R0 + sin(B + A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
-        val ytc = R0 - cos(B + A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
+        val xtd = R0 - sign(B) * sin(B - A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
+        val ytd = R0 + sign(B) * cos(B - A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
+        val xtc = R0 - sign(B) * sin(B + A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
+        val ytc = R0 + sign(B) * cos(B + A) * (R0 - (sin(W + A - PI / 2) * R1)) / cos(A)
 
         //помечаем точки для трапеции
         pathTrapezium.reset()
@@ -132,13 +138,16 @@ class CircleView : View {
         pathTrapezium.lineTo(xta.toFloat() + xDeviation, yta.toFloat() + yDeviation)
         pathTrapezium.lineTo(xtb.toFloat() + xDeviation, ytb.toFloat() + yDeviation)
 
-        //рисуем трапецию
-        canvas?.drawPath(pathTrapezium, white)
         //рисуем левый маленький круг
-        canvas?.drawCircle(xl.toFloat() + xDeviation, yl.toFloat() + yDeviation, R2, blue)
+        canvas?.drawCircle(xl.toFloat() + xDeviation, yl.toFloat() + yDeviation, R2, red)
         //рисуем правый маленький круг
-        canvas?.drawCircle(xr.toFloat() + xDeviation, yr.toFloat() + yDeviation, R2, blue)
+        canvas?.drawCircle(xr.toFloat() + xDeviation, yr.toFloat() + yDeviation, R2, red)
         //рисуем средний круг
         canvas?.drawCircle(x.toFloat() + xDeviation, y.toFloat() + yDeviation, R1, white)
+        //рисуем трапецию
+        canvas?.drawPath(pathTrapezium, black)
+
     }
+
+    private fun sign(A: Double) = if (A > 0 && A < PI / 2 || A > PI && A < 3 * PI / 2) 1 else -1
 }
