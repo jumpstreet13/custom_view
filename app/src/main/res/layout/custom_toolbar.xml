@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="108dp"
+              tools:background="@android:color/black"
+              android:weightSum="4">
+
+    <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivPost"
+            android:src="@drawable/ic_post_select"
+            android:layout_width="0dp"
+            android:layout_margin="@dimen/margin_normal"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivUsers"
+            android:src="@drawable/ic_users_select"
+            android:layout_width="0dp"
+            android:layout_margin="@dimen/margin_normal"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivTags"
+            android:src="@drawable/ic_tags_select"
+            android:layout_width="0dp"
+            android:layout_margin="@dimen/margin_normal"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/ivPlace"
+            android:src="@drawable/ic_place_select"
+            android:layout_width="0dp"
+            android:layout_margin="@dimen/margin_normal"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+</LinearLayout>
