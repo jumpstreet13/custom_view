@@ -89,8 +89,8 @@ class CustomToolbar : FrameLayout {
         canvas?.drawPath(path, bluePaint)
 
         val t = (ivUsers.x + ivUsers.width / 2) / width
-        val r = ivUsers.x / width
-        val l = (ivUsers.x + ivUsers.width) / width.toFloat()
+        val r = (ivUsers.x - 30f) / width
+        val l = (ivUsers.x + ivUsers.width + 30f) / width.toFloat()
         drawShape(t, r, l, canvas)
 
     }
@@ -102,54 +102,49 @@ class CustomToolbar : FrameLayout {
     }
 
     private fun drawShape(t: Float, r: Float, l: Float, canvas: Canvas?) {
+        val k = 50f//
+        val p = 10f//
+
         val x = quad.getX(t)
         val y = quad.getY(t)
 
-        //находим левые точки фигуры
-        val xl = quad.getX(l)
-        val yl = quad.getY(l)
+        //находим левые точки фигуры основания
+        val xa = quad.getX(l)
+        val ya = quad.getY(l)
 
-        //находим правые точки фигуры
-        val xr = quad.getX(r)
-        val yr = quad.getY(r)
+        //находим правые точки фигуры основания
+        val xb = quad.getX(r)
+        val yb = quad.getY(r)
 
-        val a = sqrt((xl - x) * (xl - x) + (yl - y) * (yl - y))
-        val p = yl - y
-        val k = xl - x
+        //находим левые точки фигуры основания
+        val xc = xb + k
+        val yc = yb - k
 
-        val cosA = if (p == 0f) 0.00001 else (a * a + p * p - k * k) / (2.0 * a * p)
+        //находим правые точки фигуры основания
+        val xd = xa - k
+        val yd = ya - k
 
-        val A = acos(cosA)
+        val xo = (xa + xb) / 2
+        val yo = (yb + ya) / 2 - k
 
-        //координаты вершины рисуемой фигуры
-        val xt = x - heightShape * Math.sin(PI / 2 - A).toFloat()
-        val yt = y - heightShape * Math.cos(PI / 2 - A).toFloat()
+        val ro = sqrt((xc - xd) * (xc - xd) + (yc - yd) * (yc - yd)) / 2
 
-        val xp = x - xt
-        val yp = y - yt
+        val xm = (xa + xd) / 2 - p
+        val ym = (ya + yd) / 2 + p
 
-        val xa = xr - xp * 3 / 4
-        val ya = yr - yp * 3 / 4
-        val xb = xl - xp * 3 / 4
-        val yb = yl - yp * 3 / 4
+        val xn = (xb + xc) / 2 + p
+        val yn = (yb + yc) / 2 + p
 
-        val xc = (x + xl) / 2
-        val yc = (y + yl) / 2
-        val xd = (x + xr) / 2
-        val yd = (y + yr) / 2
-
-        //строим купол
         pathC.reset()
-        pathC.moveTo(xl, yl)
-        pathC.cubicTo(xc, yc, xb, yb, xt, yt)
-        pathC.cubicTo(xa, ya, xd, yd, xr, yr)
-        pathC.lineTo(xl, yl)
-        pathC.lineTo(xr, yr)
-        pathC.lineTo(xr + 20f, yr + 20f)
-        pathC.lineTo(xl - 20f, yl + 20f)
+        pathC.moveTo(xa, ya)
+        pathC.quadTo(xm, ym, xd, yd)
+        pathC.lineTo(xc, yc)
+        pathC.quadTo(xn, yn, xb, yb)
 
-        //рисуем купол
+        //рисуем трапецию
         canvas?.drawPath(pathC, whitePaint)
+        //рисуем круг
+        canvas?.drawOval(xo - ro, yo + ro, xo + ro, yo - ro, whitePaint)
 
     }
 
