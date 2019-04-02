@@ -103,7 +103,7 @@ class CustomToolbar : FrameLayout {
 
     private fun drawShape(t: Float, r: Float, l: Float, canvas: Canvas?) {
         val k = 50f//
-        val p = 10f//
+        val p = 30f//
 
         val x = quad.getX(t)
         val y = quad.getY(t)
