@@ -7,15 +7,15 @@
 
         <!--<OnSwipe
                 app:dragDirection="dragUp"
-                app:touchAnchorId="@id/rvMy"
+                app:touchAnchorId="@position/rvMy"
                 app:touchAnchorSide="top"/>-->
 
     </Transition>
 
-    <!--<ConstraintSet android:id="@+id/end">
+    <!--<ConstraintSet android:position="@+position/end">
 
         <Constraint
-                android:id="@+id/arcView"
+                android:position="@+position/arcView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -30,10 +30,10 @@
 
     </ConstraintSet>
 
-    <ConstraintSet android:id="@+id/start">
+    <ConstraintSet android:position="@+position/start">
 
         <Constraint
-                android:id="@+id/arcView"
+                android:position="@+position/arcView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
