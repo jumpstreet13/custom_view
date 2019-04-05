@@ -1,16 +1,17 @@
 package com.example.customview
 
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
+import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
-import at.wirecube.additiveanimations.additive_animator.AdditiveAnimator
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -22,13 +23,11 @@ class CustomToolbar : FrameLayout {
     private val redPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val pathRect = Path()
-    private val pathFigur = Path()
-    private val pathCircle = Path()
+    private val pathFigure = Path()
 
     private val listView = mutableListOf<SelectView>()
 
     private val heightRect = resources.getDimension(R.dimen.toolbar_size)
-    private var heightShape = 0f
 
     private lateinit var quad: Quad
 
@@ -84,10 +83,12 @@ class CustomToolbar : FrameLayout {
         canvas?.drawRect(0f, 0f, width.toFloat(), heightRect, bluePaint)
         canvas?.drawPath(pathRect, bluePaint)
 
-        /*val t = (ivPost.x + ivPost.width / 2f) / width
-        val r = (ivPost.x - 30f) / width
-        val l = (ivPost.x + ivPost.width + 30f) / width
-        drawShape(t, r, l, canvas)*/
+        listView.find { it.select }?.let {
+            val t = (it.view.x + it.view.width / 2f) / width
+            val r = (it.view.x - 60f) / width
+            val l = (it.view.x + it.view.width + 60f) / width
+            drawShape(t, r, l, canvas)
+        }
 
     }
 
@@ -106,9 +107,34 @@ class CustomToolbar : FrameLayout {
         currentView?.select = false
         selectView.select = true
 
-        AdditiveAnimator.animate(selectView.view).apply {
-            translationY(heightRect - selectView.view.height)
-            start()
+        selectView.view.setOnClickListener {
+
+            val hs = (heightRect + selectView.view.height) / 2
+            val pathAnimSelect = Path().apply {
+                moveTo(selectView.view.x, selectView.view.y)
+                lineTo(selectView.view.x, hs)
+            }
+            ObjectAnimator.ofFloat(selectView.view, View.X, View.Y, pathAnimSelect)
+                .apply {
+                    duration = 500L
+                    addUpdateListener { selectView.defaultY = hs }
+                    start()
+                }
+
+            currentView?.let { v ->
+                val hc = abs(heightRect - v.view.height) / 2
+                val pathAnimCurrent = Path().apply {
+                    moveTo(v.view.x, v.view.y)
+                    lineTo(v.view.x, hc)
+                }
+                ObjectAnimator.ofFloat(v.view, View.X, View.Y, pathAnimCurrent)
+                    .apply {
+                        duration = 500L
+                        addUpdateListener { v.defaultY = hc }
+                        start()
+                    }
+            }
+
         }
     }
 
@@ -143,18 +169,16 @@ class CustomToolbar : FrameLayout {
         val xn = (xb + xc) / 2 + k
         val yn = (yb + yc) / 2 - k
 
-        pathFigur.reset()
-        pathFigur.moveTo(xa, ya)
-        pathFigur.quadTo(xm, ym, xd, yd)
-        pathFigur.lineTo(xb, yb)
-        pathFigur.quadTo(xn, yn, xc, yc)
-
-        pathCircle.addOval(x - ro, y - ro - 10f, x + ro, y + ro - 10f, Path.Direction.CCW)
+        pathFigure.reset()
+        pathFigure.moveTo(xa, ya)
+        pathFigure.quadTo(xm, ym, xd, yd)
+        pathFigure.lineTo(xb, yb)
+        pathFigure.quadTo(xn, yn, xc, yc)
 
         //рисуем круг
-        canvas?.drawPath(pathCircle, whitePaint)
+        canvas?.drawPath(pathFigure, whitePaint)
         //рисуем трапецию
-        canvas?.drawPath(pathFigur, whitePaint)
+        canvas?.drawCircle(x, y-20f, ro, whitePaint)
 
     }
 
@@ -224,7 +248,10 @@ class CustomToolbar : FrameLayout {
         listView.add(SelectView(ivTags, 0f, 0f, false))
         listView.add(SelectView(ivPlace, 0f, 0f, false))
 
-        listView.forEach { v -> addView(v.view) }
+        listView.forEachIndexed { i, v ->
+            addView(v.view)
+            select(i)
+        }
 
     }
 
