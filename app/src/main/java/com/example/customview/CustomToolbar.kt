@@ -6,32 +6,31 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
-import android.view.View
-import android.view.ViewTreeObserver
+import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import at.wirecube.additiveanimations.additive_animator.AdditiveAnimator
-import kotlinx.android.synthetic.main.custom_toolbar.view.*
+import kotlin.math.abs
 import kotlin.math.sqrt
 
 class CustomToolbar : FrameLayout {
 
     private val whitePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val bluePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val blackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val redPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
     private val pathRect = Path()
     private val pathFigur = Path()
     private val pathCircle = Path()
-    private lateinit var quad: Quad
+
     private val listView = mutableListOf<SelectView>()
 
-    private var Px0 = 0f
-    private var Py0 = 0f
-    private var Px1 = 0f
-    private var Py1 = 0f
-    private var Px2 = 0f
-    private var Py2 = 0f
     private val heightRect = resources.getDimension(R.dimen.toolbar_size)
     private var heightShape = 0f
+
+    private lateinit var quad: Quad
 
     constructor(context: Context) : super(context) {
         initial()
@@ -47,51 +46,69 @@ class CustomToolbar : FrameLayout {
 
     private fun initial() {
         setWillNotDraw(false)
-        View.inflate(context, R.layout.custom_toolbar, this)
-
         initPaint()
-        initCoordinate()
         initView()
+    }
 
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+
+        with(quad) {
+            Px0 = 0f
+            Py0 = heightRect
+            Px1 = width / 2f
+            Px2 = width * 1f
+            Py2 = heightRect
+        }
+
+        listView.forEachIndexed { index, view ->
+            val defaultX = width * (index + 1) / (listView.size + 1f) - view.view.width
+            val defaultY = abs(heightRect - view.view.height) / 2
+            view.view.x = defaultX
+            view.view.y = defaultY
+            view.defaultX = defaultX
+            view.defaultY = defaultY
+        }
+
+        select(0)
     }
 
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
+
         pathRect.reset()
-        pathRect.moveTo(Px0, Py0)
-        pathRect.quadTo(Px1, Py1, Px2, Py2)
+        pathRect.moveTo(quad.Px0, quad.Py0)
+        pathRect.quadTo(quad.Px1, quad.Py1, quad.Px2, quad.Py2)
 
         canvas?.drawRect(0f, 0f, width.toFloat(), heightRect, bluePaint)
         canvas?.drawPath(pathRect, bluePaint)
 
-        val t = (ivPost.x + ivPost.width / 2f) / width
+        /*val t = (ivPost.x + ivPost.width / 2f) / width
         val r = (ivPost.x - 30f) / width
         val l = (ivPost.x + ivPost.width + 30f) / width
-        drawShape(t, r, l, canvas)
+        drawShape(t, r, l, canvas)*/
 
     }
 
     fun setProgress(progress: Float) {
-        Py1 = heightRect * (1 + progress)
-        quad = Quad(Px0, Py0, Px1, Py1, Px2, Py2)
+        quad.Py1 = heightRect * (1 + progress)
+        changeView()
         invalidate()
     }
 
     fun select(position: Int) {
         val currentView = listView.find { it.select }
-        val selectView = listView.find { it.position == position }
+        val selectView = listView[position]
 
-        if (currentView?.position == selectView?.position) return
+        if (currentView == selectView) return
 
         currentView?.select = false
-        selectView?.select = true
+        selectView.select = true
 
-        selectView?.let { select ->
-            AdditiveAnimator.animate(select.view).apply {
-                translationY(heightRect - select.view.height)
-                start()
-            }
+        AdditiveAnimator.animate(selectView.view).apply {
+            translationY(heightRect - selectView.view.height)
+            start()
         }
     }
 
@@ -135,9 +152,9 @@ class CustomToolbar : FrameLayout {
         pathCircle.addOval(x - ro, y - ro - 10f, x + ro, y + ro - 10f, Path.Direction.CCW)
 
         //рисуем круг
-        //canvas?.drawPath(pathCircle, whitePaint)
+        canvas?.drawPath(pathCircle, whitePaint)
         //рисуем трапецию
-        //canvas?.drawPath(pathFigur, whitePaint)
+        canvas?.drawPath(pathFigur, whitePaint)
 
     }
 
@@ -154,48 +171,88 @@ class CustomToolbar : FrameLayout {
             strokeWidth = 3f
             style = Paint.Style.FILL
         }
-    }
 
-    private fun initCoordinate() {
+        redPaint.apply {
+            color = Color.RED
+            strokeWidth = 3f
+            style = Paint.Style.FILL
+        }
 
-        viewTreeObserver?.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                Px1 = width / 2f
-                Py1 = heightRect
-                Px2 = width.toFloat()
-                Py2 = heightRect
-                Py0 = heightRect
-                heightShape = ivUsers.height.toFloat() + resources.getDimension(R.dimen.margin_normal) + 20f
-                quad = Quad(Px0, Py0, Px1, Py1, Px2, Py2)
-
-                select(0)
-
-                viewTreeObserver.removeOnGlobalLayoutListener(this)
-            }
-
-        })
-
+        blackPaint.apply {
+            color = Color.BLACK
+            strokeWidth = 3f
+            style = Paint.Style.FILL
+        }
     }
 
     private fun initView() {
-        listView.add(SelectView(0, ivPost, false))
-        listView.add(SelectView(1, ivUsers, false))
-        listView.add(SelectView(2, ivTags, false))
-        listView.add(SelectView(3, ivPlace, false))
+        val ivPost = ImageView(context)
+            .apply {
+                layoutParams =
+                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                setBackgroundResource(R.drawable.ic_post)
+            }
+
+        val ivUsers = ImageView(context)
+            .apply {
+                layoutParams =
+                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                setBackgroundResource(R.drawable.ic_users)
+            }
+
+        val ivTags = ImageView(context)
+            .apply {
+                layoutParams =
+                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                setBackgroundResource(R.drawable.ic_tags)
+            }
+
+        val ivPlace = ImageView(context)
+            .apply {
+                layoutParams =
+                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                setBackgroundResource(R.drawable.ic_place)
+            }
+
+        minimumHeight = resources.getDimension(R.dimen.toolbar_height).toInt()
+
+
+        quad = Quad(0f, 0f, 0f, 0f, 0f, 0f)
+
+        listView.add(SelectView(ivPost, 0f, 0f, false))
+        listView.add(SelectView(ivUsers, 0f, 0f, false))
+        listView.add(SelectView(ivTags, 0f, 0f, false))
+        listView.add(SelectView(ivPlace, 0f, 0f, false))
+
+        listView.forEach { v -> addView(v.view) }
+
+    }
+
+    private fun changeView() {
+
+        listView.forEach {
+            it.view.y = it.defaultY + quad.getY((it.view.x + it.view.width) / width.toFloat()) - heightRect
+        }
+
     }
 
     class Quad(
-        private val Px0: Float,
-        private val Py0: Float,
-        private val Px1: Float,
-        private val Py1: Float,
-        private val Px2: Float,
-        private val Py2: Float
+        var Px0: Float,
+        var Py0: Float,
+        var Px1: Float,
+        var Py1: Float,
+        var Px2: Float,
+        var Py2: Float
     ) {
         fun getX(t: Float) = (1 - t) * (1 - t) * Px0 + 2 * t * (1 - t) * Px1 + t * t * Px2
         fun getY(t: Float) = (1 - t) * (1 - t) * Py0 + 2 * t * (1 - t) * Py1 + t * t * Py2
     }
 
-    data class SelectView(val position: Int, val view: View, var select: Boolean)
+    data class SelectView(
+        val view: ImageView,
+        var defaultX: Float,
+        var defaultY: Float,
+        var select: Boolean
+    )
 
 }

@@ -3,10 +3,11 @@
               android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="108dp"
+              android:id="@+id/container"
               tools:background="@android:color/black"
               android:weightSum="4">
 
-    <androidx.appcompat.widget.AppCompatImageView
+    <!--<androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivPost"
             android:src="@drawable/ic_post_select"
             android:layout_width="0dp"
@@ -36,6 +37,6 @@
             android:layout_width="0dp"
             android:layout_margin="@dimen/margin_normal"
             android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+            android:layout_weight="1"/>-->
 
 </LinearLayout>
