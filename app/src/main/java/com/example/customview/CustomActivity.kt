@@ -11,6 +11,11 @@ class CustomActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_custom)
 
+        customToolbar.addImage(R.drawable.ic_post)
+        customToolbar.addImage(R.drawable.ic_users)
+        customToolbar.addImage(R.drawable.ic_tags)
+        customToolbar.addImage(R.drawable.ic_place)
+
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
 
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {

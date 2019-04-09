@@ -11,9 +11,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import kotlin.math.abs
-import kotlin.math.sqrt
 
 class CustomToolbar : FrameLayout {
 
@@ -23,7 +23,6 @@ class CustomToolbar : FrameLayout {
     private val redPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val pathRect = Path()
-    private val pathFigure = Path()
 
     private val listView = mutableListOf<SelectView>()
 
@@ -98,6 +97,19 @@ class CustomToolbar : FrameLayout {
         invalidate()
     }
 
+    fun addImage(@DrawableRes idRes: Int) {
+        val iv = ImageView(context)
+            .apply {
+                layoutParams =
+                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+                setBackgroundResource(idRes)
+
+            }
+        listView.add(SelectView(iv, 0f, 0f, false))
+        addView(iv)
+    }
+
+
     fun select(position: Int) {
         val currentView = listView.find { it.select }
         val selectView = listView[position]
@@ -134,14 +146,10 @@ class CustomToolbar : FrameLayout {
                         start()
                     }
             }
-
         }
     }
 
     private fun drawShape(t: Float, r: Float, l: Float, canvas: Canvas?) {
-        val k = 30f//
-        val p = 30f//
-
         val x = quad.getX(t)
         val y = quad.getY(t)
 
@@ -153,32 +161,9 @@ class CustomToolbar : FrameLayout {
         val xb = quad.getX(r)
         val yb = quad.getY(r)
 
-        //находим левые точки фигуры основания
-        val xc = xb + k
-        val yc = yb - k
-
-        //находим правые точки фигуры основания
-        val xd = xa - k
-        val yd = ya - k
-
-        val ro = sqrt((xc - xd) * (xc - xd) + (yc - yd) * (yc - yd)) / 2
-
-        val xm = (xa + xd) / 2 - k
-        val ym = (ya + yd) / 2 - k
-
-        val xn = (xb + xc) / 2 + k
-        val yn = (yb + yc) / 2 - k
-
-        pathFigure.reset()
-        pathFigure.moveTo(xa, ya)
-        pathFigure.quadTo(xm, ym, xd, yd)
-        pathFigure.lineTo(xb, yb)
-        pathFigure.quadTo(xn, yn, xc, yc)
-
-        //рисуем круг
-        canvas?.drawPath(pathFigure, whitePaint)
-        //рисуем трапецию
-        canvas?.drawCircle(x, y-20f, ro, whitePaint)
+        canvas?.drawCircle(x, y, 60f, whitePaint)
+        canvas?.drawCircle(xa, ya - 30f, 31f, whitePaint)
+        canvas?.drawCircle(xb, yb - 30f, 31f, whitePaint)
 
     }
 
@@ -210,49 +195,8 @@ class CustomToolbar : FrameLayout {
     }
 
     private fun initView() {
-        val ivPost = ImageView(context)
-            .apply {
-                layoutParams =
-                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                setBackgroundResource(R.drawable.ic_post)
-            }
-
-        val ivUsers = ImageView(context)
-            .apply {
-                layoutParams =
-                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                setBackgroundResource(R.drawable.ic_users)
-            }
-
-        val ivTags = ImageView(context)
-            .apply {
-                layoutParams =
-                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                setBackgroundResource(R.drawable.ic_tags)
-            }
-
-        val ivPlace = ImageView(context)
-            .apply {
-                layoutParams =
-                    ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                setBackgroundResource(R.drawable.ic_place)
-            }
-
         minimumHeight = resources.getDimension(R.dimen.toolbar_height).toInt()
-
-
         quad = Quad(0f, 0f, 0f, 0f, 0f, 0f)
-
-        listView.add(SelectView(ivPost, 0f, 0f, false))
-        listView.add(SelectView(ivUsers, 0f, 0f, false))
-        listView.add(SelectView(ivTags, 0f, 0f, false))
-        listView.add(SelectView(ivPlace, 0f, 0f, false))
-
-        listView.forEachIndexed { i, v ->
-            addView(v.view)
-            select(i)
-        }
-
     }
 
     private fun changeView() {
