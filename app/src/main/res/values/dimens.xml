@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="margin_normal">16dp</dimen>
+    <dimen name="delta">24dp</dimen>
     <dimen name="toolbar_size">54dp</dimen>
     <dimen name="toolbar_height">100dp</dimen>
 </resources>

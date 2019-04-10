@@ -22,13 +22,19 @@ class CustomToolbar : FrameLayout {
     private val blackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val redPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private val pathRect = Path()
+    private val pathRectBlue = Path()
+    private val pathRectWhite = Path()
+    private val pathTr = Path()
 
     private val listView = mutableListOf<SelectView>()
 
     private val heightRect = resources.getDimension(R.dimen.toolbar_size)
+    private val delta = resources.getDimension(R.dimen.delta)
 
-    private lateinit var quad: Quad
+    private lateinit var quadTop: Quad
+    private lateinit var quadBottom: Quad
+
+    private var progress = 0f
 
     constructor(context: Context) : super(context) {
         initial()
@@ -51,12 +57,20 @@ class CustomToolbar : FrameLayout {
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
-        with(quad) {
+        with(quadTop) {
             Px0 = 0f
             Py0 = heightRect
             Px1 = width / 2f
             Px2 = width * 1f
             Py2 = heightRect
+        }
+
+        with(quadBottom) {
+            Px0 = 0f
+            Py0 = heightRect + delta
+            Px1 = width / 2f
+            Px2 = width * 1f
+            Py2 = heightRect + delta
         }
 
         listView.forEachIndexed { index, view ->
@@ -74,13 +88,24 @@ class CustomToolbar : FrameLayout {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
+        with(pathRectBlue) {
+            reset()
+            moveTo(quadTop.Px0, quadTop.Py0)
+            quadTo(quadTop.Px1, quadTop.Py1, quadTop.Px2, quadTop.Py2)
+        }
 
-        pathRect.reset()
-        pathRect.moveTo(quad.Px0, quad.Py0)
-        pathRect.quadTo(quad.Px1, quad.Py1, quad.Px2, quad.Py2)
+        with(pathRectWhite) {
+            reset()
+            moveTo(quadTop.Px0, quadTop.Py0)
+            quadTo(quadTop.Px1, quadTop.Py1, quadTop.Px2, quadTop.Py2)
+            lineTo(quadBottom.Px2, quadBottom.Py2)
+            quadTo(quadBottom.Px1, quadBottom.Py1, quadBottom.Px0, quadBottom.Py0)
+
+        }
 
         canvas?.drawRect(0f, 0f, width.toFloat(), heightRect, bluePaint)
-        canvas?.drawPath(pathRect, bluePaint)
+        canvas?.drawPath(pathRectBlue, bluePaint)
+        canvas?.drawPath(pathRectWhite, whitePaint)
 
         listView.find { it.select }?.let {
             val t = (it.view.x + it.view.width / 2f) / width
@@ -92,9 +117,11 @@ class CustomToolbar : FrameLayout {
     }
 
     fun setProgress(progress: Float) {
-        quad.Py1 = heightRect * (1 + progress)
+        quadTop.Py1 = heightRect * (1 + progress)
+        quadBottom.Py1 = (heightRect + delta) * (1 + progress)
         changeView()
         invalidate()
+        this.progress = progress
     }
 
     fun addImage(@DrawableRes idRes: Int) {
@@ -150,20 +177,33 @@ class CustomToolbar : FrameLayout {
     }
 
     private fun drawShape(t: Float, r: Float, l: Float, canvas: Canvas?) {
-        val x = quad.getX(t)
-        val y = quad.getY(t)
+        val x = quadTop.getX(t)
+        val y = quadTop.getY(t)
 
         //находим левые точки фигуры основания
-        val xa = quad.getX(l)
-        val ya = quad.getY(l)
+        val xa = quadTop.getX(l)
+        val ya = quadTop.getY(l)
 
         //находим правые точки фигуры основания
-        val xb = quad.getX(r)
-        val yb = quad.getY(r)
+        val xb = quadTop.getX(r)
+        val yb = quadTop.getY(r)
 
+        //находим центер между r и l
+        val xc = (xa + xb) / 2
+        val yc = (ya + yb) / 2
+
+        pathTr.reset()
+        pathTr.moveTo(xa, ya)
+        pathTr.lineTo(xb, yb)
+        pathTr.lineTo(xb + 30f, yb - (15f + 15 * (1 - progress)))
+        pathTr.lineTo(xa - 30f, ya - 30f)
         canvas?.drawCircle(x, y, 60f, whitePaint)
-        canvas?.drawCircle(xa, ya - 30f, 31f, whitePaint)
-        canvas?.drawCircle(xb, yb - 30f, 31f, whitePaint)
+        //canvas?.drawPath(pathTr, whitePaint)
+
+        /*canvas?.drawCircle(xa, ya, 10f, blackPaint)
+        canvas?.drawCircle(xb, yb, 10f, redPaint)
+        canvas?.drawCircle(xb + 30f, yb - 30f, 10f, bluePaint)
+        canvas?.drawCircle(xa - 30f, ya - 30f, 10f, whitePaint)*/
 
     }
 
@@ -196,13 +236,14 @@ class CustomToolbar : FrameLayout {
 
     private fun initView() {
         minimumHeight = resources.getDimension(R.dimen.toolbar_height).toInt()
-        quad = Quad(0f, 0f, 0f, 0f, 0f, 0f)
+        quadTop = Quad(0f, 0f, 0f, 0f, 0f, 0f)
+        quadBottom = Quad(0f, 0f, 0f, 0f, 0f, 0f)
     }
 
     private fun changeView() {
 
         listView.forEach {
-            it.view.y = it.defaultY + quad.getY((it.view.x + it.view.width) / width.toFloat()) - heightRect
+            it.view.y = it.defaultY + quadTop.getY((it.view.x + it.view.width) / width.toFloat()) - heightRect
         }
 
     }
