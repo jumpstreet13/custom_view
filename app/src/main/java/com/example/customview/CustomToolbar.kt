@@ -82,7 +82,7 @@ class CustomToolbar : FrameLayout {
             view.defaultY = defaultY
         }
 
-        select(0)
+        select(1)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -182,7 +182,6 @@ class CustomToolbar : FrameLayout {
      * right - относительня величина для низа правого маленького круга
      * canvas - на чем рисуем
      **/
-
     private fun drawShape(center: Float, right: Float, left: Float, R: Float, canvas: Canvas?) {
         //находим центр большого круга
         val x0 = quadTop.getX(center)
@@ -207,19 +206,24 @@ class CustomToolbar : FrameLayout {
         val cosb = d / b
         val q = PI - acos(cosa) - acos(cosb)
         //координаты левого маленького круга
-        val x2 = xo1 + sin(q) * Rml
-        val y2 = yo1 - cos(q) * Rml
-        //координаты правого маленького круга
-        val x3 = xo2 + sin(q) * Rml
-        val y3 = yo2 - cos(q) * Rml
+        val x2 = xo1 + sin(q.toFloat()) * Rml
+        val y2 = yo1 - cos(q.toFloat()) * Rml
 
-        //пересечение левого и центрального круговкруга
-        val x4 = x2 - sin(acos(cosb) - acos(cosa)) * Rml
-        val y4 = y2 + cos(acos(cosb) - acos(cosa)) * Rml
+        //расстояние от низа правого маленького круга до центра большого
+        val a = sqrt((xo2 - x0) * (xo2 - x0) + (yo2 - y0) * (yo2 - y0))
+        val p = abs(y0 - yo2)
+        //расстояние от края большого круга до низа маленького правого
+        val f = a - R
+        //радиус маленького круга правого
+        val Rmr = f * (1 + f / (2 * R))
+        val sinc = p / a
+        val cosd = (a * a + (Rmr + R) * (Rmr + R) - Rmr * Rmr) / (2 * a * (Rmr + R))
+        //координаты правого и центрального кругов
+        val x3 = x0 - cos(asin(sinc) + acos(cosd)) * (Rmr + R)
+        val y3 = y0 - sin(asin(sinc) + acos(cosd)) * (Rmr + R)
 
-        canvas?.drawCircle(x2.toFloat(), y2.toFloat(), Rml, whitePaint)
-        canvas?.drawCircle(x3.toFloat(), y3.toFloat(), Rml, whitePaint)
-        canvas?.drawCircle(x4.toFloat(), y4.toFloat(), 10f, redPaint)
+        canvas?.drawCircle(x2, y2, Rml, whitePaint)
+        canvas?.drawCircle(x3, y3, Rmr, whitePaint)
 
         canvas?.drawCircle(x0, y0, R, whitePaint)
 
