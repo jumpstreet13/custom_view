@@ -82,7 +82,7 @@ class CustomToolbar : FrameLayout {
             view.defaultY = defaultY
         }
 
-        select(1)
+        select(0)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -183,6 +183,10 @@ class CustomToolbar : FrameLayout {
      * canvas - на чем рисуем
      **/
     private fun drawShape(center: Float, right: Float, left: Float, R: Float, canvas: Canvas?) {
+
+        //коэфициент для разных сторон
+        val k = if (center > 0.5f) -1 else 1
+
         //находим центр большого круга
         val x0 = quadTop.getX(center)
         val y0 = quadTop.getY(center)
@@ -206,7 +210,7 @@ class CustomToolbar : FrameLayout {
         val cosb = d / b
         val q = PI - acos(cosa) - acos(cosb)
         //координаты левого маленького круга
-        val x2 = xo1 + sin(q.toFloat()) * Rml
+        val x2 = xo1 + k * sin(q.toFloat()) * Rml
         val y2 = yo1 - cos(q.toFloat()) * Rml
 
         //расстояние от низа правого маленького круга до центра большого
@@ -219,8 +223,8 @@ class CustomToolbar : FrameLayout {
         val sinc = p / a
         val cosd = (a * a + (Rmr + R) * (Rmr + R) - Rmr * Rmr) / (2 * a * (Rmr + R))
         //координаты правого и центрального кругов
-        val x3 = x0 - cos(asin(sinc) + acos(cosd)) * (Rmr + R)
-        val y3 = y0 - sin(asin(sinc) + acos(cosd)) * (Rmr + R)
+        val x3 = x0 - cos(asin(sinc) + k * acos(cosd)) * (Rmr + R)
+        val y3 = y0 - k * sin(asin(sinc) + k * acos(cosd)) * (Rmr + R)
 
         canvas?.drawCircle(x2, y2, Rml, whitePaint)
         canvas?.drawCircle(x3, y3, Rmr, whitePaint)
