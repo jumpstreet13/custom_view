@@ -13,7 +13,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
-import kotlin.math.abs
+import kotlin.math.*
 
 class CustomToolbar : FrameLayout {
 
@@ -111,7 +111,7 @@ class CustomToolbar : FrameLayout {
             val t = (it.view.x + it.view.width / 2f) / width
             val r = (it.view.x - 60f) / width
             val l = (it.view.x + it.view.width + 60f) / width
-            drawShape(t, r, l, canvas)
+            drawShape(t, r, l, 60f, canvas)
         }
 
     }
@@ -176,34 +176,52 @@ class CustomToolbar : FrameLayout {
         }
     }
 
-    private fun drawShape(t: Float, r: Float, l: Float, canvas: Canvas?) {
-        val x = quadTop.getX(t)
-        val y = quadTop.getY(t)
+    /**
+     * center - относительня величина для центра большого круга
+     * left - относительня величина для низа левого маленького круга
+     * right - относительня величина для низа правого маленького круга
+     * canvas - на чем рисуем
+     **/
 
-        //находим левые точки фигуры основания
-        val xa = quadTop.getX(l)
-        val ya = quadTop.getY(l)
+    private fun drawShape(center: Float, right: Float, left: Float, R: Float, canvas: Canvas?) {
+        //находим центр большого круга
+        val x0 = quadTop.getX(center)
+        val y0 = quadTop.getY(center)
 
-        //находим правые точки фигуры основания
-        val xb = quadTop.getX(r)
-        val yb = quadTop.getY(r)
+        //находим точки пересечения  левого маленького круга и кривой безье
+        val xo1 = quadTop.getX(left)
+        val yo1 = quadTop.getY(left)
 
-        //находим центер между r и l
-        val xc = (xa + xb) / 2
-        val yc = (ya + yb) / 2
+        //находим точки пересечения правого маленького круга и кривой безье
+        val xo2 = quadTop.getX(right)
+        val yo2 = quadTop.getY(right)
 
-        pathTr.reset()
-        pathTr.moveTo(xa, ya)
-        pathTr.lineTo(xb, yb)
-        pathTr.lineTo(xb + 30f, yb - (15f + 15 * (1 - progress)))
-        pathTr.lineTo(xa - 30f, ya - 30f)
-        canvas?.drawCircle(x, y, 60f, whitePaint)
-        //canvas?.drawPath(pathTr, whitePaint)
+        //расстояние от низа левого маленького круга до центра большого
+        val b = sqrt((xo1 - x0) * (xo1 - x0) + (yo1 - y0) * (yo1 - y0))
+        //расстояние от края большого круга до низа маленького левого
+        val e = b - R
+        //радиус маленького круга левого
+        val Rml = e * (1 + (e / (2 * R)))
+        val cosa = (b * b + Rml * Rml - (R + Rml) * (R + Rml)) / (2 * b * Rml)
+        val d = abs(y0 - yo1)
+        val cosb = d / b
+        val q = PI - acos(cosa) - acos(cosb)
+        //координаты левого маленького круга
+        val x2 = xo1 + sin(q) * Rml
+        val y2 = yo1 - cos(q) * Rml
+        //координаты правого маленького круга
+        val x3 = xo2 + sin(q) * Rml
+        val y3 = yo2 - cos(q) * Rml
 
-        /*canvas?.drawCircle(xa, ya, 10f, blackPaint)
-        canvas?.drawCircle(xb, yb, 10f, redPaint)
-        canvas?.drawCircle(xb + 30f, yb - 30f, 10f, bluePaint)
-        canvas?.drawCircle(xa - 30f, ya - 30f, 10f, whitePaint)*/
+        //пересечение левого и центрального круговкруга
+        val x4 = x2 - sin(acos(cosb) - acos(cosa)) * Rml
+        val y4 = y2 + cos(acos(cosb) - acos(cosa)) * Rml
+
+        canvas?.drawCircle(x2.toFloat(), y2.toFloat(), Rml, whitePaint)
+        canvas?.drawCircle(x3.toFloat(), y3.toFloat(), Rml, whitePaint)
+        canvas?.drawCircle(x4.toFloat(), y4.toFloat(), 10f, redPaint)
+
+        canvas?.drawCircle(x0, y0, R, whitePaint)
 
     }
 
