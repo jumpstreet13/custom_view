@@ -242,15 +242,23 @@ class CustomToolbar : FrameLayout {
         val yk = u * j / (1 + j * j)
         val xk = (Rmr * Rmr - R * R - xdr * xdr - 2 * ydr * yk - ydr * ydr) / (2 * xdr)
 
-        canvas?.drawCircle(x2, y2, Rml, whitePaint)
-        canvas?.drawCircle(x3, y3, Rmr, whitePaint)
+        //строим фигуру для прикрывания цвета
+        pathTr.reset()
+        pathTr.moveTo(x0 + xt, y0 + yt)
+        pathTr.lineTo(x0 + xk, y0 + yk)
+        pathTr.lineTo(xo2, yo2)
+        pathTr.lineTo(xo2, 2 * y0 - yo2)
+        pathTr.lineTo(xo1, 2 * yo1 - y0)
+        pathTr.lineTo(xo1, yo1)
 
+        //рисуем фигуру
+        canvas?.drawPath(pathTr, whitePaint)
+        //рисуем левый круг
+        canvas?.drawCircle(x2, y2, Rml, bluePaint)
+        //русуем правый круг
+        canvas?.drawCircle(x3, y3, Rmr, bluePaint)
+        //рисуем центральный круг
         canvas?.drawCircle(x0, y0, R, whitePaint)
-
-        canvas?.drawCircle(x0 + xt, y0 + yt, 10f, redPaint)
-        canvas?.drawCircle(x0 + xk, y0 + yk, 10f, blackPaint)
-        canvas?.drawCircle(xo1, yo1, 10f, redPaint)
-        canvas?.drawCircle(xo2, yo2, 10f, blackPaint)
 
     }
 
