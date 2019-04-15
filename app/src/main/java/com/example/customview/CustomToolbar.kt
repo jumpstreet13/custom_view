@@ -222,14 +222,35 @@ class CustomToolbar : FrameLayout {
         val Rmr = f * (1 + f / (2 * R))
         val sinc = p / a
         val cosd = (a * a + (Rmr + R) * (Rmr + R) - Rmr * Rmr) / (2 * a * (Rmr + R))
-        //координаты правого и центрального кругов
+        //координаты правого маленького круга
         val x3 = x0 - cos(asin(sinc) + k * acos(cosd)) * (Rmr + R)
         val y3 = y0 - k * sin(asin(sinc) + k * acos(cosd)) * (Rmr + R)
+
+        val xdl = x0 - x2
+        val ydl = y0 - y2
+        val s = (Rml * Rml - R * R - xdl * xdl - ydl * ydl) / (2 * xdl)
+        val z = ydl / xdl
+        //точки пересечения правого и центрального кругов
+        val yt = s * z / (1 + z * z)
+        val xt = (Rml * Rml - R * R - xdl * xdl - 2 * ydl * yt - ydl * ydl) / (2 * xdl)
+
+        val xdr = x0 - x3
+        val ydr = y0 - y3
+        val u = (Rmr * Rmr - R * R - xdr * xdr - ydr * ydr) / (2 * xdr)
+        val j = ydr / xdr
+        //точки пересечения левого и центрального кругов
+        val yk = u * j / (1 + j * j)
+        val xk = (Rmr * Rmr - R * R - xdr * xdr - 2 * ydr * yk - ydr * ydr) / (2 * xdr)
 
         canvas?.drawCircle(x2, y2, Rml, whitePaint)
         canvas?.drawCircle(x3, y3, Rmr, whitePaint)
 
         canvas?.drawCircle(x0, y0, R, whitePaint)
+
+        canvas?.drawCircle(x0 + xt, y0 + yt, 10f, redPaint)
+        canvas?.drawCircle(x0 + xk, y0 + yk, 10f, blackPaint)
+        canvas?.drawCircle(xo1, yo1, 10f, redPaint)
+        canvas?.drawCircle(xo2, yo2, 10f, blackPaint)
 
     }
 
