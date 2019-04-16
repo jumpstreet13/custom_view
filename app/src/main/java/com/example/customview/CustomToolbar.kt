@@ -1,6 +1,7 @@
 package com.example.customview
 
 import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -133,7 +134,9 @@ class CustomToolbar : FrameLayout {
 
             }
         listView.add(SelectView(iv, 0f, 0f, false))
+        listView.forEachIndexed { i, s -> s.view.setOnClickListener { select(i) } }
         addView(iv)
+        invalidate()
     }
 
 
@@ -174,6 +177,7 @@ class CustomToolbar : FrameLayout {
                     }
             }
         }
+        invalidate()
     }
 
     /**

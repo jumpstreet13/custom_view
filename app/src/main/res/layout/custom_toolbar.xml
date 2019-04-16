@@ -7,6 +7,9 @@
               tools:background="@android:color/black"
               android:weightSum="4">
 
+    <com.google.android.material.tabs.TabLayout android:layout_width="wrap_content"
+                                                android:layout_height="match_parent"></com.google.android.material.tabs.TabLayout>
+
     <!--<androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/ivPost"
             android:src="@drawable/ic_post_select"
