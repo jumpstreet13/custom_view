@@ -31,6 +31,8 @@ class CustomToolbar : FrameLayout {
 
     private val heightRect = resources.getDimension(R.dimen.toolbar_size)
     private val delta = resources.getDimension(R.dimen.delta)
+    private val lenght = 50f//отступы от круга
+    private val radius = 60f//радиус большого круга
 
     private lateinit var quadTop: Quad
     private lateinit var quadBottom: Quad
@@ -108,9 +110,9 @@ class CustomToolbar : FrameLayout {
 
         listView.find { it.select }?.let {
             val t = (it.view.x + it.view.width / 2f) / width
-            val r = (it.view.x - 50f) / width
-            val l = (it.view.x + it.view.width + 50f) / width
-            drawShape(t, r, l, 60f, canvas)
+            val r = (it.view.x - lenght) / width
+            val l = (it.view.x + it.view.width + lenght) / width
+            drawShape(t, r, l, radius, canvas)
         }
 
     }
@@ -245,8 +247,8 @@ class CustomToolbar : FrameLayout {
         pathTr.moveTo(x0 + xt, y0 + yt)
         pathTr.lineTo(x0 + xk, y0 + yk)
         pathTr.lineTo(xo2, yo2)
-        pathTr.lineTo(xo2, 2 * y0 - yo2)
-        pathTr.lineTo(xo1, 2 * yo1 - y0)
+        pathTr.lineTo(xo2, if (center > 0.5f) 2 * yo2 - y0 else 2 * y0 - yo2)
+        pathTr.lineTo(xo1, if (center > 0.5f) 2 * y0 - yo1 else 2 * yo1 - y0)
         pathTr.lineTo(xo1, yo1)
 
         //рисуем фигуру
