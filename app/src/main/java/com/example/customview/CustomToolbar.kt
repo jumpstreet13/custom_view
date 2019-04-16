@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -33,8 +34,6 @@ class CustomToolbar : FrameLayout {
 
     private lateinit var quadTop: Quad
     private lateinit var quadBottom: Quad
-
-    private var progress = 0f
 
     constructor(context: Context) : super(context) {
         initial()
@@ -104,8 +103,8 @@ class CustomToolbar : FrameLayout {
         }
 
         canvas?.drawRect(0f, 0f, width.toFloat(), heightRect, bluePaint)
-        canvas?.drawPath(pathRectBlue, bluePaint)
         canvas?.drawPath(pathRectWhite, whitePaint)
+        canvas?.drawPath(pathRectBlue, bluePaint)
 
         listView.find { it.select }?.let {
             val t = (it.view.x + it.view.width / 2f) / width
@@ -118,10 +117,9 @@ class CustomToolbar : FrameLayout {
 
     fun setProgress(progress: Float) {
         quadTop.Py1 = heightRect * (1 + progress)
-        quadBottom.Py1 = (heightRect + delta) * (1 + progress)
+        quadBottom.Py1 = heightRect * (1 + progress) + delta
         changeView()
         invalidate()
-        this.progress = progress
     }
 
     fun addImage(@DrawableRes idRes: Int) {
