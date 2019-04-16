@@ -109,8 +109,8 @@ class CustomToolbar : FrameLayout {
 
         listView.find { it.select }?.let {
             val t = (it.view.x + it.view.width / 2f) / width
-            val r = (it.view.x - 60f) / width
-            val l = (it.view.x + it.view.width + 60f) / width
+            val r = (it.view.x - 50f) / width
+            val l = (it.view.x + it.view.width + 50f) / width
             drawShape(t, r, l, 60f, canvas)
         }
 
