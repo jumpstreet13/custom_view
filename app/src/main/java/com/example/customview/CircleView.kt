@@ -132,14 +132,14 @@ class CircleView : View {
         pathTrapezium.lineTo(xta.toFloat() + xDeviation, yta.toFloat() + yDeviation)
         pathTrapezium.lineTo(xtb.toFloat() + xDeviation, ytb.toFloat() + yDeviation)
 
+        //рисуем трапецию
+        canvas?.drawPath(pathTrapezium, white)//black
         //рисуем левый маленький круг
-        canvas?.drawCircle(xl.toFloat() + xDeviation, yl.toFloat() + yDeviation, R2, red)
+        canvas?.drawCircle(xl.toFloat() + xDeviation, yl.toFloat() + yDeviation, R2, blue)//red
         //рисуем правый маленький круг
-        canvas?.drawCircle(xr.toFloat() + xDeviation, yr.toFloat() + yDeviation, R2, red)
+        canvas?.drawCircle(xr.toFloat() + xDeviation, yr.toFloat() + yDeviation, R2, blue)//red
         //рисуем средний круг
         canvas?.drawCircle(x.toFloat() + xDeviation, y.toFloat() + yDeviation, R1, white)
-        //рисуем трапецию
-        canvas?.drawPath(pathTrapezium, black)
 
     }
 
