@@ -1,28 +1,18 @@
 package com.example.customview
 
 import android.animation.ObjectAnimator
-import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
-import com.jakewharton.rxbinding3.view.clicks
-import io.reactivex.Observable
-import io.reactivex.Scheduler
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
 import kotlin.math.*
 
 class CustomToolbar : FrameLayout {
@@ -160,9 +150,10 @@ class CustomToolbar : FrameLayout {
         selectView.select = true
 
         val hs = (heightRect + selectView.view.height) / 2
+        val dhs = quadTop.getY((selectView.view.x + selectView.view.width) / width) - quadTop.Py0
         val pathAnimSelect = Path().apply {
             moveTo(selectView.view.x, selectView.view.y)
-            lineTo(selectView.view.x, hs)
+            lineTo(selectView.view.x, hs + dhs)
         }
         ObjectAnimator.ofFloat(selectView.view, View.X, View.Y, pathAnimSelect)
             .apply {
@@ -173,9 +164,10 @@ class CustomToolbar : FrameLayout {
 
         currentView?.let { v ->
             val hc = abs(heightRect - v.view.height) / 2
+            val dhc = quadTop.getY((v.view.x + v.view.width) / width) - quadTop.Py0
             val pathAnimCurrent = Path().apply {
                 moveTo(v.view.x, v.view.y)
-                lineTo(v.view.x, hc)
+                lineTo(v.view.x, hc + dhc)
             }
             ObjectAnimator.ofFloat(v.view, View.X, View.Y, pathAnimCurrent)
                 .apply {
