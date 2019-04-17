@@ -18,6 +18,8 @@ class CustomToolbar : FrameLayout {
     private val bluePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val blackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val redPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val pinkPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val gradientPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val pathRectBlue = Path()
     private val pathRectWhite = Path()
@@ -27,8 +29,13 @@ class CustomToolbar : FrameLayout {
 
     private val heightRect = resources.getDimension(R.dimen.toolbar_size)
     private val delta = resources.getDimension(R.dimen.delta)
-    private val lenght = 50f//отступы от круга
-    private val radius = 60f//радиус большого круга
+
+    private val length = 50f//отступы от круга
+    private val radiusView = 60f//радиус большого круга
+    private val radiusGradient = 300f//радиус большого круга
+
+    private val colorEdge = ContextCompat.getColor(context, R.color.blue)//цвет фона
+    private val colorCenter = ContextCompat.getColor(context, R.color.pink)//цвет выделения
 
     private lateinit var quadTop: Quad
     private lateinit var quadBottom: Quad
@@ -70,8 +77,6 @@ class CustomToolbar : FrameLayout {
             Py2 = heightRect + delta
         }
 
-        //initList()
-
         listView.forEachIndexed { index, view ->
             val defaultX = width * (index + 1) / (listView.size + 1f) - view.view.width
             val defaultY = abs(heightRect - view.view.height) / 2
@@ -103,15 +108,9 @@ class CustomToolbar : FrameLayout {
         }
 
         canvas?.drawRect(0f, 0f, width.toFloat(), heightRect, bluePaint)
-        canvas?.drawPath(pathRectWhite, whitePaint)
         canvas?.drawPath(pathRectBlue, bluePaint)
 
-        listView.find { it.select }?.let {
-            val t = (it.view.x + it.view.width / 2f) / width
-            val r = (it.view.x - lenght) / width
-            val l = (it.view.x + it.view.width + lenght) / width
-            drawShape(t, r, l, radius, canvas)
-        }
+        listView.find { it.select }?.let { drawShape(it.view, radiusView, canvas) }
 
     }
 
@@ -176,13 +175,15 @@ class CustomToolbar : FrameLayout {
         invalidate()
     }
 
-    /**
-     * center - относительня величина для центра большого круга
-     * left - относительня величина для низа левого маленького круга
-     * right - относительня величина для низа правого маленького круга
-     * canvas - на чем рисуем
-     **/
-    private fun drawShape(center: Float, right: Float, left: Float, R: Float, canvas: Canvas?) {
+    private fun drawShape(view: View, R: Float, canvas: Canvas?) {
+
+        //относительные величины
+        val center = (view.x + view.width / 2f) / width
+        val right = (view.x - length) / width
+        val left = (view.x + view.width + length) / width
+
+        val rh = (view.x + view.width / 2 + radiusGradient) / width
+        val lh = (view.x + view.width / 2 - radiusGradient) / width
 
         //коэфициент для разных сторон
         val k = if (center > 0.5f) -1 else 1
@@ -198,6 +199,12 @@ class CustomToolbar : FrameLayout {
         //находим точки пересечения правого маленького круга и кривой безье
         val xo2 = quadTop.getX(right)
         val yo2 = quadTop.getY(right)
+
+        //точки для пересечения градиетна и кривой безье
+        val xlh = quadTop.getX(lh)
+        val ylh = quadTop.getY(lh)
+        val xrh = quadTop.getX(rh)
+        val yrh = quadTop.getY(rh)
 
         //расстояние от низа левого маленького круга до центра большого
         val b = sqrt((xo1 - x0) * (xo1 - x0) + (yo1 - y0) * (yo1 - y0))
@@ -242,6 +249,18 @@ class CustomToolbar : FrameLayout {
         val yk = u * j / (1 + j * j)
         val xk = (Rmr * Rmr - R * R - xdr * xdr - 2 * ydr * yk - ydr * ydr) / (2 * xdr)
 
+        val ab = sqrt((xlh - xrh) * (xlh - xrh) + (ylh - yrh) * (ylh - yrh))
+        val ac = sqrt((x0 - xlh) * (x0 - xlh) + (y0 - ylh) * (y0 - ylh))
+        val bc = sqrt((x0 - xrh) * (x0 - xrh) + (y0 - yrh) * (y0 - yrh))
+
+        val sins = (y0 - ylh) / ac
+        //откуда начинает рисоваться градиент
+        val aos = 180f * (1 + asin(sins) / PI.toFloat()) - 5f
+
+        val sinb = (yrh - y0) / bc
+        //на сколько градусов рисуется градиент
+        val aoc = 180 - asin(sins) / PI.toFloat() * 180 + asin(sinb) / PI.toFloat() * 180 + 10f
+
         //строим фигуру для прикрывания цвета
         pathTr.reset()
         pathTr.moveTo(x0 + xt, y0 + yt)
@@ -251,14 +270,37 @@ class CustomToolbar : FrameLayout {
         pathTr.lineTo(xo1, if (center > 0.5f) 2 * y0 - yo1 else 2 * yo1 - y0)
         pathTr.lineTo(xo1, yo1)
 
-        //рисуем фигуру
+        //шаблон градиента
+        gradientPaint.shader = RadialGradient(
+            x0,
+            y0,
+            radiusGradient,
+            colorCenter,
+            colorEdge,
+            android.graphics.Shader.TileMode.CLAMP
+        )
+
+        //рисуем градиент
+        canvas?.drawArc(
+            x0 - radiusGradient,
+            y0 - radiusGradient,
+            x0 + radiusGradient,
+            y0 + radiusGradient,
+            aos,
+            aoc,
+            true,
+            gradientPaint)
+
+        //рисуем фигуру для цвета
         canvas?.drawPath(pathTr, whitePaint)
         //рисуем левый круг
-        canvas?.drawCircle(x2, y2, Rml, bluePaint)
+        canvas?.drawCircle(x2, y2, Rml, gradientPaint)
         //русуем правый круг
-        canvas?.drawCircle(x3, y3, Rmr, bluePaint)
+        canvas?.drawCircle(x3, y3, Rmr, gradientPaint)
         //рисуем центральный круг
         canvas?.drawCircle(x0, y0, R, whitePaint)
+        //рисуем дугу
+        canvas?.drawPath(pathRectWhite, whitePaint)
 
     }
 
@@ -282,11 +324,20 @@ class CustomToolbar : FrameLayout {
             style = Paint.Style.FILL
         }
 
+        pinkPaint.apply {
+            color = colorCenter
+            strokeWidth = 3f
+            style = Paint.Style.FILL
+        }
+
         blackPaint.apply {
             color = Color.BLACK
             strokeWidth = 3f
             style = Paint.Style.FILL
         }
+
+        gradientPaint.isDither = true
+
     }
 
     private fun initView() {
