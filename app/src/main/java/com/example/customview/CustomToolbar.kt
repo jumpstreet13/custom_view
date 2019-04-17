@@ -15,6 +15,14 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
+import com.jakewharton.rxbinding3.view.clicks
+import io.reactivex.Observable
+import io.reactivex.Scheduler
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import java.util.concurrent.TimeUnit
 import kotlin.math.*
 
 class CustomToolbar : FrameLayout {
@@ -74,6 +82,8 @@ class CustomToolbar : FrameLayout {
             Px2 = width * 1f
             Py2 = heightRect + delta
         }
+
+        //initList()
 
         listView.forEachIndexed { index, view ->
             val defaultX = width * (index + 1) / (listView.size + 1f) - view.view.width
@@ -149,33 +159,30 @@ class CustomToolbar : FrameLayout {
         currentView?.select = false
         selectView.select = true
 
-        selectView.view.setOnClickListener {
-
-            val hs = (heightRect + selectView.view.height) / 2
-            val pathAnimSelect = Path().apply {
-                moveTo(selectView.view.x, selectView.view.y)
-                lineTo(selectView.view.x, hs)
+        val hs = (heightRect + selectView.view.height) / 2
+        val pathAnimSelect = Path().apply {
+            moveTo(selectView.view.x, selectView.view.y)
+            lineTo(selectView.view.x, hs)
+        }
+        ObjectAnimator.ofFloat(selectView.view, View.X, View.Y, pathAnimSelect)
+            .apply {
+                duration = 400L
+                addUpdateListener { selectView.defaultY = hs }
+                start()
             }
-            ObjectAnimator.ofFloat(selectView.view, View.X, View.Y, pathAnimSelect)
+
+        currentView?.let { v ->
+            val hc = abs(heightRect - v.view.height) / 2
+            val pathAnimCurrent = Path().apply {
+                moveTo(v.view.x, v.view.y)
+                lineTo(v.view.x, hc)
+            }
+            ObjectAnimator.ofFloat(v.view, View.X, View.Y, pathAnimCurrent)
                 .apply {
-                    duration = 500L
-                    addUpdateListener { selectView.defaultY = hs }
+                    duration = 400L
+                    addUpdateListener { v.defaultY = hc }
                     start()
                 }
-
-            currentView?.let { v ->
-                val hc = abs(heightRect - v.view.height) / 2
-                val pathAnimCurrent = Path().apply {
-                    moveTo(v.view.x, v.view.y)
-                    lineTo(v.view.x, hc)
-                }
-                ObjectAnimator.ofFloat(v.view, View.X, View.Y, pathAnimCurrent)
-                    .apply {
-                        duration = 500L
-                        addUpdateListener { v.defaultY = hc }
-                        start()
-                    }
-            }
         }
         invalidate()
     }
