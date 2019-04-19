@@ -4,7 +4,6 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -39,8 +38,8 @@ class CustomToolbar : FrameLayout {
     private val colorSelect = ContextCompat.getColor(context, R.color.pink)//цвет выделения
     private val colorLineBottom = Color.WHITE//цвет нижней линии
 
-    private lateinit var quadTop: Quad
-    private lateinit var quadBottom: Quad
+    private lateinit var curveBezierTop: CurveBezier
+    private lateinit var curveBezierBottom: CurveBezier
 
     //анимация для переключения элементов
     private var progressAnim = 0f
@@ -66,7 +65,7 @@ class CustomToolbar : FrameLayout {
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
-        with(quadTop) {
+        with(curveBezierTop) {
             Px0 = 0f
             Py0 = heightRect
             Px1 = width / 2f
@@ -74,7 +73,7 @@ class CustomToolbar : FrameLayout {
             Py2 = heightRect
         }
 
-        with(quadBottom) {
+        with(curveBezierBottom) {
             Px0 = 0f
             Py0 = heightRect + delta
             Px1 = width / 2f
@@ -99,16 +98,16 @@ class CustomToolbar : FrameLayout {
 
         with(pathRectBlue) {
             reset()
-            moveTo(quadTop.Px0, quadTop.Py0)
-            quadTo(quadTop.Px1, quadTop.Py1, quadTop.Px2, quadTop.Py2)
+            moveTo(curveBezierTop.Px0, curveBezierTop.Py0)
+            quadTo(curveBezierTop.Px1, curveBezierTop.Py1, curveBezierTop.Px2, curveBezierTop.Py2)
         }
 
         with(pathRectWhite) {
             reset()
-            moveTo(quadTop.Px0, quadTop.Py0)
-            quadTo(quadTop.Px1, quadTop.Py1, quadTop.Px2, quadTop.Py2)
-            lineTo(quadBottom.Px2, quadBottom.Py2)
-            quadTo(quadBottom.Px1, quadBottom.Py1, quadBottom.Px0, quadBottom.Py0)
+            moveTo(curveBezierTop.Px0, curveBezierTop.Py0)
+            quadTo(curveBezierTop.Px1, curveBezierTop.Py1, curveBezierTop.Px2, curveBezierTop.Py2)
+            lineTo(curveBezierBottom.Px2, curveBezierBottom.Py2)
+            quadTo(curveBezierBottom.Px1, curveBezierBottom.Py1, curveBezierBottom.Px0, curveBezierBottom.Py0)
 
         }
 
@@ -120,8 +119,8 @@ class CustomToolbar : FrameLayout {
     }
 
     fun setProgress(progress: Float) {
-        quadTop.Py1 = heightRect * (1 + progress)
-        quadBottom.Py1 = heightRect * (1 + progress) + delta
+        curveBezierTop.Py1 = heightRect * (1 + progress)
+        curveBezierBottom.Py1 = heightRect * (1 + progress) + delta
         changeView()
         invalidate()
     }
@@ -151,11 +150,12 @@ class CustomToolbar : FrameLayout {
         selectView.select = true
 
         val hs = (heightRect + selectView.view.height) / 2
-        val dhs = quadTop.getY((selectView.view.x + selectView.view.width) / width) - quadTop.Py0
+        val dhs = curveBezierTop.getY((selectView.view.x + selectView.view.width) / width) - curveBezierTop.Py0
         val pathAnimSelect = Path().apply {
             moveTo(selectView.view.x, selectView.view.y)
             lineTo(selectView.view.x, hs + dhs)
         }
+
         ObjectAnimator.ofFloat(selectView.view, View.X, View.Y, pathAnimSelect)
             .apply {
                 duration = 400L
@@ -175,7 +175,7 @@ class CustomToolbar : FrameLayout {
 
         currentView?.let { v ->
             val hc = abs(heightRect - v.view.height) / 2
-            val dhc = quadTop.getY((v.view.x + v.view.width) / width) - quadTop.Py0
+            val dhc = curveBezierTop.getY((v.view.x + v.view.width) / width) - curveBezierTop.Py0
             val pathAnimCurrent = Path().apply {
                 moveTo(v.view.x, v.view.y)
                 lineTo(v.view.x, hc + dhc)
@@ -187,12 +187,9 @@ class CustomToolbar : FrameLayout {
                     start()
                 }
         }
-        invalidate()
     }
 
     private fun drawShape(view: View, R: Float, canvas: Canvas?) {
-
-        Log.d("Animation", "$progressAnim")
 
         //относительные величины
         val center = (view.x + view.width / 2f) / width
@@ -206,25 +203,25 @@ class CustomToolbar : FrameLayout {
         val k = if (center > 0.5f) -1 else 1
 
         //находим центр большого круга
-        val x0 = quadTop.getX(center)
+        val x0 = curveBezierTop.getX(center)
         //расчитывае высоту в зависимости от прогреса анимации
-        val y0 = quadTop.getY(center) + (1 - progressAnim) * radiusView
+        val y0 = curveBezierTop.getY(center) + (1 - progressAnim) * radiusView
 
         //находим точки пересечения  левого маленького круга и кривой безье
-        val xo1 = quadTop.getX(left)
+        val xo1 = curveBezierTop.getX(left)
         //расчитывае высоту в зависимости от прогреса анимации
-        val yo1 = quadTop.getY(left) + (1 - progressAnim) * radiusView
+        val yo1 = curveBezierTop.getY(left) + (1 - progressAnim) * radiusView
 
         //находим точки пересечения правого маленького круга и кривой безье
-        val xo2 = quadTop.getX(right)
+        val xo2 = curveBezierTop.getX(right)
         //расчитывае высоту в зависимости от прогреса анимации
-        val yo2 = quadTop.getY(right) + (1 - progressAnim) * radiusView
+        val yo2 = curveBezierTop.getY(right) + (1 - progressAnim) * radiusView
 
         //точки для пересечения градиетна и кривой безье
-        val xlh = quadTop.getX(lh)
-        val ylh = quadTop.getY(lh)
-        val xrh = quadTop.getX(rh)
-        val yrh = quadTop.getY(rh)
+        val xlh = curveBezierTop.getX(lh)
+        val ylh = curveBezierTop.getY(lh)
+        val xrh = curveBezierTop.getX(rh)
+        val yrh = curveBezierTop.getY(rh)
 
         //расстояние от низа левого маленького круга до центра большого
         val b = sqrt((xo1 - x0) * (xo1 - x0) + (yo1 - y0) * (yo1 - y0))
@@ -372,19 +369,19 @@ class CustomToolbar : FrameLayout {
 
     private fun initView() {
         minimumHeight = resources.getDimension(R.dimen.toolbar_height).toInt()
-        quadTop = Quad(0f, 0f, 0f, 0f, 0f, 0f)
-        quadBottom = Quad(0f, 0f, 0f, 0f, 0f, 0f)
+        curveBezierTop = CurveBezier(0f, 0f, 0f, 0f, 0f, 0f)
+        curveBezierBottom = CurveBezier(0f, 0f, 0f, 0f, 0f, 0f)
     }
 
     private fun changeView() {
 
         listView.forEach {
-            it.view.y = it.defaultY + quadTop.getY((it.view.x + it.view.width) / width.toFloat()) - heightRect
+            it.view.y = it.defaultY + curveBezierTop.getY((it.view.x + it.view.width) / width.toFloat()) - heightRect
         }
 
     }
 
-    class Quad(
+    class CurveBezier(
         var Px0: Float,
         var Py0: Float,
         var Px1: Float,
