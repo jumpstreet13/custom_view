@@ -4,4 +4,5 @@
     <dimen name="delta">24dp</dimen>
     <dimen name="toolbar_size">54dp</dimen>
     <dimen name="toolbar_height">120dp</dimen>
+    <dimen name="margin_extra">16dp</dimen>
 </resources>

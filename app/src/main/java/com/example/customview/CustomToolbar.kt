@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.view.TouchDelegate
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -29,6 +30,7 @@ class CustomToolbar : FrameLayout {
 
     private val heightRect = resources.getDimension(R.dimen.toolbar_size)
     private val delta = resources.getDimension(R.dimen.delta)
+    private val margin = resources.getDimension(R.dimen.margin_extra).toInt()
 
     private val length = 50f//отступы от круга
     private val radiusView = 60f//радиус большого круга
@@ -131,7 +133,15 @@ class CustomToolbar : FrameLayout {
                 layoutParams =
                     ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
                 setBackgroundResource(idRes)
-
+                this@CustomToolbar.touchDelegate =
+                    TouchDelegate(
+                        Rect(
+                            top - margin,
+                            left - margin,
+                            bottom + margin,
+                            right + margin
+                        ), this
+                    )
             }
         listView.add(SelectView(iv, 0f, 0f, false))
         listView.forEachIndexed { i, s -> s.view.setOnClickListener { select(i) } }
@@ -298,10 +308,10 @@ class CustomToolbar : FrameLayout {
 
         //рисуем градиент
         canvas?.drawArc(
-            x0 - radiusGradient,
-            y0 - radiusGradient,
-            x0 + radiusGradient,
-            y0 + radiusGradient,
+            x0 - radiusGradient * progressAnim,
+            y0 - radiusGradient * progressAnim,
+            x0 + radiusGradient * progressAnim,
+            y0 + radiusGradient * progressAnim,
             aos,
             aoc,
             true,
