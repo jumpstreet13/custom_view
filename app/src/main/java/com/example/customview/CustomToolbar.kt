@@ -4,6 +4,7 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -34,11 +35,15 @@ class CustomToolbar : FrameLayout {
     private val radiusView = 60f//радиус большого круга
     private val radiusGradient = 300f//радиус большого круга
 
-    private val colorEdge = ContextCompat.getColor(context, R.color.blue)//цвет фона
-    private val colorCenter = ContextCompat.getColor(context, R.color.pink)//цвет выделения
+    private val colorBackground = ContextCompat.getColor(context, R.color.blue)//цвет фона
+    private val colorSelect = ContextCompat.getColor(context, R.color.pink)//цвет выделения
+    private val colorLineBottom = Color.WHITE//цвет нижней линии
 
     private lateinit var quadTop: Quad
     private lateinit var quadBottom: Quad
+
+    //анимация для переключения элементов
+    private var progressAnim = 0f
 
     constructor(context: Context) : super(context) {
         initial()
@@ -158,6 +163,16 @@ class CustomToolbar : FrameLayout {
                 start()
             }
 
+        ObjectAnimator.ofFloat(0f, 1f)
+            .apply {
+                duration = 400L
+                addUpdateListener {
+                    progressAnim = it.animatedValue as Float
+                    invalidate()
+                }
+                start()
+            }
+
         currentView?.let { v ->
             val hc = abs(heightRect - v.view.height) / 2
             val dhc = quadTop.getY((v.view.x + v.view.width) / width) - quadTop.Py0
@@ -177,6 +192,8 @@ class CustomToolbar : FrameLayout {
 
     private fun drawShape(view: View, R: Float, canvas: Canvas?) {
 
+        Log.d("Animation", "$progressAnim")
+
         //относительные величины
         val center = (view.x + view.width / 2f) / width
         val right = (view.x - length) / width
@@ -190,15 +207,18 @@ class CustomToolbar : FrameLayout {
 
         //находим центр большого круга
         val x0 = quadTop.getX(center)
-        val y0 = quadTop.getY(center)
+        //расчитывае высоту в зависимости от прогреса анимации
+        val y0 = quadTop.getY(center) + (1 - progressAnim) * radiusView
 
         //находим точки пересечения  левого маленького круга и кривой безье
         val xo1 = quadTop.getX(left)
-        val yo1 = quadTop.getY(left)
+        //расчитывае высоту в зависимости от прогреса анимации
+        val yo1 = quadTop.getY(left) + (1 - progressAnim) * radiusView
 
         //находим точки пересечения правого маленького круга и кривой безье
         val xo2 = quadTop.getX(right)
-        val yo2 = quadTop.getY(right)
+        //расчитывае высоту в зависимости от прогреса анимации
+        val yo2 = quadTop.getY(right) + (1 - progressAnim) * radiusView
 
         //точки для пересечения градиетна и кривой безье
         val xlh = quadTop.getX(lh)
@@ -249,7 +269,6 @@ class CustomToolbar : FrameLayout {
         val yk = u * j / (1 + j * j)
         val xk = (Rmr * Rmr - R * R - xdr * xdr - 2 * ydr * yk - ydr * ydr) / (2 * xdr)
 
-        val ab = sqrt((xlh - xrh) * (xlh - xrh) + (ylh - yrh) * (ylh - yrh))
         val ac = sqrt((x0 - xlh) * (x0 - xlh) + (y0 - ylh) * (y0 - ylh))
         val bc = sqrt((x0 - xrh) * (x0 - xrh) + (y0 - yrh) * (y0 - yrh))
 
@@ -275,8 +294,8 @@ class CustomToolbar : FrameLayout {
             x0,
             y0,
             radiusGradient,
-            colorCenter,
-            colorEdge,
+            colorSelect,
+            colorBackground,
             android.graphics.Shader.TileMode.CLAMP
         )
 
@@ -289,16 +308,29 @@ class CustomToolbar : FrameLayout {
             aos,
             aoc,
             true,
-            gradientPaint)
+            gradientPaint
+        )
 
-        //рисуем фигуру для цвета
-        canvas?.drawPath(pathTr, whitePaint)
+
+        //рисуем фигуру для цвета в зависимости от прогреса анимации
+        if (progressAnim > 0.5) {
+            canvas?.drawPath(pathTr, whitePaint)
+        }
         //рисуем левый круг
         canvas?.drawCircle(x2, y2, Rml, gradientPaint)
         //русуем правый круг
         canvas?.drawCircle(x3, y3, Rmr, gradientPaint)
-        //рисуем центральный круг
-        canvas?.drawCircle(x0, y0, R, whitePaint)
+        //рисуем центральный полукруг
+        canvas?.drawArc(
+            x0 - R,
+            y0 - R,
+            x0 + R,
+            y0 + R,
+            aos,
+            aoc,
+            true,
+            whitePaint
+        )
         //рисуем дугу
         canvas?.drawPath(pathRectWhite, whitePaint)
 
@@ -313,7 +345,7 @@ class CustomToolbar : FrameLayout {
         }
 
         whitePaint.apply {
-            color = Color.WHITE
+            color = colorLineBottom
             strokeWidth = 3f
             style = Paint.Style.FILL
         }
@@ -325,7 +357,7 @@ class CustomToolbar : FrameLayout {
         }
 
         pinkPaint.apply {
-            color = colorCenter
+            color = colorSelect
             strokeWidth = 3f
             style = Paint.Style.FILL
         }
@@ -335,8 +367,6 @@ class CustomToolbar : FrameLayout {
             strokeWidth = 3f
             style = Paint.Style.FILL
         }
-
-        gradientPaint.isDither = true
 
     }
 
