@@ -1,5 +1,6 @@
 package com.example.customview
 
+import android.animation.ArgbEvaluator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.*
@@ -42,6 +43,8 @@ class CustomToolbar : FrameLayout {
 
     private lateinit var curveBezierTop: CurveBezier
     private lateinit var curveBezierBottom: CurveBezier
+
+    private var clickListener: OnPositionClickListener? = null
 
     //анимация для переключения элементов
     private var progressAnim = 0f
@@ -132,7 +135,8 @@ class CustomToolbar : FrameLayout {
             .apply {
                 layoutParams =
                     ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                setBackgroundResource(idRes)
+                setImageResource(idRes)
+                drawable.setTint(colorLineBottom)
                 this@CustomToolbar.touchDelegate =
                     TouchDelegate(
                         Rect(
@@ -144,9 +148,18 @@ class CustomToolbar : FrameLayout {
                     )
             }
         listView.add(SelectView(iv, 0f, 0f, false))
-        listView.forEachIndexed { i, s -> s.view.setOnClickListener { select(i) } }
+        listView.forEachIndexed { i, s ->
+            s.view.setOnClickListener {
+                select(i)
+                clickListener?.onClickPosition(i, s.view)
+            }
+        }
         addView(iv)
         invalidate()
+    }
+
+    fun setOnPositionClickListener(listener: OnPositionClickListener) {
+        this.clickListener = listener
     }
 
 
@@ -183,6 +196,16 @@ class CustomToolbar : FrameLayout {
                 start()
             }
 
+        ObjectAnimator.ofObject(ArgbEvaluator(), colorLineBottom, colorSelect)
+            .apply {
+                duration = 400L
+                addUpdateListener {
+                    val colorValue = it.animatedValue as Int
+                    selectView.view.drawable.setTint(colorValue)
+                }
+                start()
+            }
+
         currentView?.let { v ->
             val hc = abs(heightRect - v.view.height) / 2
             val dhc = curveBezierTop.getY((v.view.x + v.view.width) / width) - curveBezierTop.Py0
@@ -194,6 +217,16 @@ class CustomToolbar : FrameLayout {
                 .apply {
                     duration = 400L
                     addUpdateListener { v.defaultY = hc }
+                    start()
+                }
+
+            ObjectAnimator.ofObject(ArgbEvaluator(), colorSelect, colorLineBottom)
+                .apply {
+                    duration = 400L
+                    addUpdateListener {
+                        val colorValue = it.animatedValue as Int
+                        v.view.drawable.setTint(colorValue)
+                    }
                     start()
                 }
         }
