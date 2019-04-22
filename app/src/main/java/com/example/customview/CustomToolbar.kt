@@ -12,7 +12,6 @@ import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
-import androidx.core.content.ContextCompat
 import kotlin.math.*
 
 class CustomToolbar : FrameLayout {
@@ -36,9 +35,9 @@ class CustomToolbar : FrameLayout {
     private val radiusView = 60f//радиус большого круга
     private val radiusGradient = 300f//радиус градиента
 
-    private val colorBackground = ContextCompat.getColor(context, R.color.blue)//цвет фона
-    private val colorSelect = ContextCompat.getColor(context, R.color.pink)//цвет выделения
-    private val colorLineBottom = Color.WHITE//цвет нижней линии
+    private var colorBackground: Int = 0 //цвет фона
+    private var colorSelect: Int = 0 //цвет выделения
+    private var colorLineBottom: Int = 0//цвет нижней линии
 
     private lateinit var curveBezierTop: CurveBezier
     private lateinit var curveBezierBottom: CurveBezier
@@ -49,19 +48,20 @@ class CustomToolbar : FrameLayout {
     private var progressAnim = 0f
 
     constructor(context: Context) : super(context) {
-        initial()
+        initial(null)
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        initial()
+        initial(attrs)
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyleAttr: Int) : super(context, attrs, defStyleAttr) {
-        initial()
+        initial(attrs)
     }
 
-    private fun initial() {
+    private fun initial(attrs: AttributeSet?) {
         setWillNotDraw(false)
+        initAttrs(attrs)
         initPaint()
         initView()
     }
@@ -96,7 +96,6 @@ class CustomToolbar : FrameLayout {
             view.defaultY = defaultY
         }
 
-        //select(0)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -379,7 +378,7 @@ class CustomToolbar : FrameLayout {
 
 
         //рисуем фигуру для цвета в зависимости от прогреса анимации
-        if (progress > 0.5) {
+        if (progress > 0.9) {
             canvas?.drawPath(pathTr, whitePaint)
         }
         //рисуем левый круг
@@ -414,6 +413,16 @@ class CustomToolbar : FrameLayout {
             style = Paint.Style.FILL
         }
 
+    }
+
+    private fun initAttrs(attrs: AttributeSet?) {
+        val a = context?.obtainStyledAttributes(attrs, R.styleable.CustomToolbar)
+        a?.let {
+            colorSelect = it.getColor(R.styleable.CustomToolbar_select_color, Color.RED)
+            colorBackground = it.getColor(R.styleable.CustomToolbar_background_color, Color.BLUE)
+            colorLineBottom = it.getColor(R.styleable.CustomToolbar_unselect_color, Color.WHITE)
+        }
+        a?.recycle()
     }
 
     private fun initView() {

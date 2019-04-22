@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="CustomToolbar">
+        <attr name="background_color" format="color"/>
+        <attr name="select_color" format="color"/>
+        <attr name="unselect_color" format="color"/>
+    </declare-styleable>
+
+</resources>
