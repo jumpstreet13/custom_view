@@ -77,6 +77,7 @@ class CustomToolbar : FrameLayout {
             Px1 = width / 2f
             Px2 = width * 1f
             Py2 = heightRect
+            Py1 = heightRect
         }
 
         with(curveBezierBottom) {
@@ -85,6 +86,7 @@ class CustomToolbar : FrameLayout {
             Px1 = width / 2f
             Px2 = width * 1f
             Py2 = heightRect + delta
+            Py1 = heightRect + delta
         }
 
         listView.forEachIndexed { index, view ->
@@ -96,7 +98,7 @@ class CustomToolbar : FrameLayout {
             view.defaultY = defaultY
         }
 
-        select(0)
+        //select(0)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -120,7 +122,10 @@ class CustomToolbar : FrameLayout {
         canvas?.drawRect(0f, 0f, width.toFloat(), heightRect, bluePaint)
         canvas?.drawPath(pathRectBlue, bluePaint)
 
-        listView.find { it.select }?.let { drawShape(it.view, radiusView, canvas, progressAnim) }
+        listView.find { it.select }
+            ?.let { drawShape(it.view, radiusView, canvas, progressAnim) }
+
+        canvas?.drawPath(pathRectWhite, whitePaint)
 
     }
 
@@ -151,7 +156,7 @@ class CustomToolbar : FrameLayout {
         listView.add(SelectView(iv, 0f, 0f, false))
         listView.forEachIndexed { i, s ->
             s.view.setOnClickListener {
-                select(i)
+                select(i, true)
                 clickListener?.onClickPosition(i, s.view)
             }
         }
@@ -164,7 +169,7 @@ class CustomToolbar : FrameLayout {
     }
 
 
-    fun select(position: Int) {
+    fun select(position: Int, animation: Boolean) {
         val currentView = listView.find { it.select }
         val selectView = listView[position]
 
@@ -372,8 +377,6 @@ class CustomToolbar : FrameLayout {
             true,
             whitePaint
         )
-        //рисуем дугу
-        canvas?.drawPath(pathRectWhite, whitePaint)
 
     }
 
