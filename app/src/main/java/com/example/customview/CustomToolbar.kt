@@ -8,6 +8,7 @@ import android.util.AttributeSet
 import android.view.TouchDelegate
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
@@ -18,9 +19,6 @@ class CustomToolbar : FrameLayout {
 
     private val whitePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val bluePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val blackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val redPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val pinkPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val gradientPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val pathRectBlue = Path()
@@ -36,7 +34,7 @@ class CustomToolbar : FrameLayout {
     private val durationAnim = 400L//сорость анимации
     private val length = 50f//отступы от круга
     private val radiusView = 60f//радиус большого круга
-    private val radiusGradient = 300f//радиус большого круга
+    private val radiusGradient = 300f//радиус градиента
 
     private val colorBackground = ContextCompat.getColor(context, R.color.blue)//цвет фона
     private val colorSelect = ContextCompat.getColor(context, R.color.pink)//цвет выделения
@@ -168,8 +166,18 @@ class CustomToolbar : FrameLayout {
         this.clickListener = listener
     }
 
+    fun select(position: Int) {
+        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                select(position, false)
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
+            }
+        })
+    }
 
-    fun select(position: Int, animation: Boolean) {
+
+    private fun select(position: Int, animation: Boolean) {
+
         val currentView = listView.find { it.select }
         val selectView = listView[position]
 
@@ -184,33 +192,40 @@ class CustomToolbar : FrameLayout {
             moveTo(selectView.view.x, selectView.view.y)
             lineTo(selectView.view.x, hs + dhs)
         }
-
-        ObjectAnimator.ofFloat(0f, 1f)
-            .apply {
-                duration = durationAnim
-                addUpdateListener {
-                    progressAnim = it.animatedValue as Float
-                    invalidate()
+        if (animation) {
+            ObjectAnimator.ofFloat(0f, 1f)
+                .apply {
+                    duration = durationAnim
+                    addUpdateListener {
+                        progressAnim = it.animatedValue as Float
+                        invalidate()
+                    }
+                    start()
                 }
-                start()
-            }
 
-        ObjectAnimator.ofFloat(selectView.view, View.X, View.Y, pathAnimSelect)
-            .apply {
-                duration = durationAnim
-                addUpdateListener { selectView.defaultY = hs }
-                start()
-            }
-
-        ObjectAnimator.ofObject(ArgbEvaluator(), colorLineBottom, colorSelect)
-            .apply {
-                duration = durationAnim
-                addUpdateListener {
-                    val colorValue = it.animatedValue as Int
-                    selectView.view.drawable.setTint(colorValue)
+            ObjectAnimator.ofFloat(selectView.view, View.X, View.Y, pathAnimSelect)
+                .apply {
+                    duration = durationAnim
+                    addUpdateListener { selectView.defaultY = hs }
+                    start()
                 }
-                start()
-            }
+
+            ObjectAnimator.ofObject(ArgbEvaluator(), colorLineBottom, colorSelect)
+                .apply {
+                    duration = durationAnim
+                    addUpdateListener {
+                        val colorValue = it.animatedValue as Int
+                        selectView.view.drawable.setTint(colorValue)
+                    }
+                    start()
+                }
+        } else {
+            progressAnim = 1f
+            selectView.defaultY = hs
+            selectView.view.drawable.setTint(colorSelect)
+            selectView.view.y = hs + dhs
+        }
+
 
         currentView?.let { v ->
             val hc = abs(heightRect - v.view.height) / 2
@@ -219,22 +234,27 @@ class CustomToolbar : FrameLayout {
                 moveTo(v.view.x, v.view.y)
                 lineTo(v.view.x, hc + dhc)
             }
-            ObjectAnimator.ofFloat(v.view, View.X, View.Y, pathAnimCurrent)
-                .apply {
-                    duration = durationAnim
-                    addUpdateListener { v.defaultY = hc }
-                    start()
-                }
-
-            ObjectAnimator.ofObject(ArgbEvaluator(), colorSelect, colorLineBottom)
-                .apply {
-                    duration = durationAnim
-                    addUpdateListener {
-                        val colorValue = it.animatedValue as Int
-                        v.view.drawable.setTint(colorValue)
+            if (animation) {
+                ObjectAnimator.ofFloat(v.view, View.X, View.Y, pathAnimCurrent)
+                    .apply {
+                        duration = durationAnim
+                        addUpdateListener { v.defaultY = hc }
+                        start()
                     }
-                    start()
-                }
+
+                ObjectAnimator.ofObject(ArgbEvaluator(), colorSelect, colorLineBottom)
+                    .apply {
+                        duration = durationAnim
+                        addUpdateListener {
+                            val colorValue = it.animatedValue as Int
+                            v.view.drawable.setTint(colorValue)
+                        }
+                        start()
+                    }
+            } else {
+                v.defaultY = hc
+                v.view.drawable.setTint(colorLineBottom)
+            }
         }
     }
 
@@ -383,31 +403,13 @@ class CustomToolbar : FrameLayout {
     private fun initPaint() {
 
         bluePaint.apply {
-            color = ContextCompat.getColor(context, R.color.blue)
+            color = colorBackground
             strokeWidth = 3f
             style = Paint.Style.FILL
         }
 
         whitePaint.apply {
             color = colorLineBottom
-            strokeWidth = 3f
-            style = Paint.Style.FILL
-        }
-
-        redPaint.apply {
-            color = Color.RED
-            strokeWidth = 3f
-            style = Paint.Style.FILL
-        }
-
-        pinkPaint.apply {
-            color = colorSelect
-            strokeWidth = 3f
-            style = Paint.Style.FILL
-        }
-
-        blackPaint.apply {
-            color = Color.BLACK
             strokeWidth = 3f
             style = Paint.Style.FILL
         }
@@ -421,11 +423,9 @@ class CustomToolbar : FrameLayout {
     }
 
     private fun changeView() {
-
         listView.forEach {
             it.view.y = it.defaultY + curveBezierTop.getY((it.view.x + it.view.width) / width.toFloat()) - heightRect
         }
-
     }
 
     class CurveBezier(

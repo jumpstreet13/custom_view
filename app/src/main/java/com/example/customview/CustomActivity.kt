@@ -16,7 +16,7 @@ class CustomActivity : AppCompatActivity() {
         customToolbar.addImage(R.drawable.ic_tags)
         customToolbar.addImage(R.drawable.ic_place)
 
-        customToolbar.select(0, false)
+        //customToolbar.select(1)
 
         customToolbar.setOnPositionClickListener(OnPositionClickListener { position, _ ->
             //Toast.makeText(this, "$position", Toast.LENGTH_SHORT).show()
