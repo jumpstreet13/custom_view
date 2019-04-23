@@ -5,6 +5,8 @@
         <attr name="background_color" format="color"/>
         <attr name="select_color" format="color"/>
         <attr name="unselect_color" format="color"/>
+        <attr name="duration" format="integer"/>
+        <attr name="radius_gradient" format="dimension"/>
     </declare-styleable>
 
 </resources>

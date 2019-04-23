@@ -30,10 +30,10 @@ class CustomToolbar : FrameLayout {
     private val delta = resources.getDimension(R.dimen.delta)
     private val margin = resources.getDimension(R.dimen.margin_extra).toInt()
 
-    private val durationAnim = 400L//сорость анимации
+    private var durationAnim = 400L//сорость анимации
     private val length = 50f//отступы от круга
     private val radiusView = 60f//радиус большого круга
-    private val radiusGradient = 300f//радиус градиента
+    private var radiusGradient = 500f//радиус градиента
 
     private var colorBackground: Int = 0 //цвет фона
     private var colorSelect: Int = 0 //цвет выделения
@@ -134,6 +134,8 @@ class CustomToolbar : FrameLayout {
     }
 
     fun addImage(@DrawableRes idRes: Int) {
+        if (listView.size > 5) return
+
         val iv = ImageView(context)
             .apply {
                 layoutParams =
@@ -358,7 +360,7 @@ class CustomToolbar : FrameLayout {
         gradientPaint.shader = RadialGradient(
             x0,
             y0,
-            radiusGradient,
+            radiusGradient * if (progress == 0f) 0.0001f else progress,
             colorSelect,
             colorBackground,
             android.graphics.Shader.TileMode.CLAMP
@@ -366,10 +368,10 @@ class CustomToolbar : FrameLayout {
 
         //рисуем градиент
         canvas?.drawArc(
-            x0 - radiusGradient * progress,
-            y0 - radiusGradient * progress,
-            x0 + radiusGradient * progress,
-            y0 + radiusGradient * progress,
+            x0 - radiusGradient,
+            y0 - radiusGradient,
+            x0 + radiusGradient,
+            y0 + radiusGradient,
             aos,
             aoc,
             true,
@@ -421,6 +423,8 @@ class CustomToolbar : FrameLayout {
             colorSelect = it.getColor(R.styleable.CustomToolbar_select_color, Color.RED)
             colorBackground = it.getColor(R.styleable.CustomToolbar_background_color, Color.BLUE)
             colorLineBottom = it.getColor(R.styleable.CustomToolbar_unselect_color, Color.WHITE)
+            durationAnim = it.getInteger(R.styleable.CustomToolbar_duration, 400).toLong()
+            radiusGradient = it.getDimension(R.styleable.CustomToolbar_radius_gradient, 300f)
         }
         a?.recycle()
     }
