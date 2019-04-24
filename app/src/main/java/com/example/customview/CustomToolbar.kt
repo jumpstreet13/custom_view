@@ -380,7 +380,7 @@ class CustomToolbar : FrameLayout {
 
 
         //рисуем фигуру для цвета в зависимости от прогреса анимации
-        if (progress > 0.9) {
+        if (progress > 0.5) {
             canvas?.drawPath(pathTr, whitePaint)
         }
         //рисуем левый круг
