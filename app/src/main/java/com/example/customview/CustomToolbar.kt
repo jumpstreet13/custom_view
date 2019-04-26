@@ -437,7 +437,8 @@ class CustomToolbar : FrameLayout {
 
     private fun changeView() {
         listView.forEach {
-            it.view.y = it.defaultY + curveBezierTop.getY((it.view.x + it.view.width) / width.toFloat()) - heightRect
+            it.view.y =
+                it.defaultY + curveBezierTop.getY((it.view.x + it.view.width / 2) / width.toFloat()) - heightRect
         }
     }
 
