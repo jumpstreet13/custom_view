@@ -22,4 +22,80 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+
+        <Button android:id="@+id/radiusOne"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="rad"/>
+
+        <Button android:id="@+id/radiusTwo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="rad"/>
+
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+
+        <Button android:id="@+id/durationOne"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="dur"/>
+
+        <Button android:id="@+id/durationTwo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="dur"/>
+
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+
+        <Button android:id="@+id/backgroundOne"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="back"/>
+
+        <Button android:id="@+id/backgroundTwo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="back"/>
+
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+
+        <Button android:id="@+id/selectOne"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="select"/>
+
+        <Button android:id="@+id/selectTwo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="select"/>
+
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+
+        <Button android:id="@+id/unselectOne"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="unse"/>
+
+        <Button android:id="@+id/unelectTwo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="unse"/>
+
+    </LinearLayout>
+
 </LinearLayout>

@@ -173,14 +173,15 @@ class CustomToolbar : FrameLayout {
 
     fun setSeloctColor(@ColorInt color: Int) {
         listView.forEach { v -> v.takeIf { it.select }?.view?.drawable?.setTint(color) }
-        backgroundPaint.color = color
         colorSelect = color
+        invalidate()
     }
 
     fun setUnselectColor(@ColorInt color: Int) {
         listView.forEach { v -> v.takeIf { !it.select }?.view?.drawable?.setTint(color) }
         colorLinePaint.color = color
         colorLineBottom = color
+        invalidate()
     }
 
     fun setDuration(duration: Long) {
@@ -190,6 +191,7 @@ class CustomToolbar : FrameLayout {
     fun setColorBackground(@ColorInt color: Int) {
         colorBackground = color
         backgroundPaint.color = color
+        invalidate()
     }
 
     fun setRadiusGradient(radius: Float) {

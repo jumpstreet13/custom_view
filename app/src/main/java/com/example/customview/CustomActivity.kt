@@ -19,11 +19,16 @@ class CustomActivity : AppCompatActivity() {
 
         customToolbar.select(1)
 
-        customToolbar.setColorBackground(Color.WHITE)
-        customToolbar.setDuration(2000)
-        customToolbar.setUnselectColor(Color.BLUE)
-        customToolbar.setRadiusGradient(1000f)
-        customToolbar.setSeloctColor(Color.YELLOW)
+        backgroundOne.setOnClickListener { customToolbar.setColorBackground(Color.GREEN) }
+        backgroundTwo.setOnClickListener { customToolbar.setColorBackground(Color.BLUE) }
+        selectOne.setOnClickListener { customToolbar.setSeloctColor(Color.RED) }
+        selectTwo.setOnClickListener { customToolbar.setSeloctColor(Color.YELLOW) }
+        unselectOne.setOnClickListener { customToolbar.setUnselectColor(Color.BLACK) }
+        unelectTwo.setOnClickListener { customToolbar.setUnselectColor(Color.WHITE) }
+        durationOne.setOnClickListener { customToolbar.setDuration(2000) }
+        durationTwo.setOnClickListener { customToolbar.setDuration(200) }
+        radiusOne.setOnClickListener { customToolbar.setRadiusGradient(1000f) }
+        radiusTwo.setOnClickListener { customToolbar.setRadiusGradient(300f) }
 
         customToolbar.setOnPositionClickListener(OnPositionClickListener { position, _ ->
             //Toast.makeText(this, "$position", Toast.LENGTH_SHORT).show()
