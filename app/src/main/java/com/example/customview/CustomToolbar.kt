@@ -19,7 +19,6 @@ class CustomToolbar : FrameLayout {
     private val colorLinePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val gradientPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val redPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val pathRectBlue = Path()
     private val pathRectWhite = Path()
@@ -230,7 +229,7 @@ class CustomToolbar : FrameLayout {
 
         currentView?.let { v ->
             val hc = abs(heightRect - v.view.height) / 2
-            val dhc = curveBezierTop.getY((v.view.x + v.view.width / 2) / width) - curveBezierTop.Py0
+            val dhc = curveBezierTop.getY((v.view.x + v.view.width / 2f) / width) - curveBezierTop.Py0
             val pathAnimCurrent = Path().apply {
                 moveTo(v.view.x, v.view.y)
                 lineTo(v.view.x, hc + dhc)
@@ -374,7 +373,6 @@ class CustomToolbar : FrameLayout {
             gradientPaint
         )
 
-
         //рисуем фигуру для цвета
         canvas?.drawPath(pathTr, colorLinePaint)
         //рисуем левый круг
@@ -397,11 +395,6 @@ class CustomToolbar : FrameLayout {
 
     private fun initPaint() {
 
-        redPaint.apply {
-            color = Color.RED
-            strokeWidth = 3f
-            style = Paint.Style.FILL
-        }
         backgroundPaint.apply {
             color = colorBackground
             strokeWidth = 3f
@@ -437,27 +430,8 @@ class CustomToolbar : FrameLayout {
     private fun changeView() {
         listView.forEach {
             it.view.y =
-                it.defaultY + curveBezierTop.getY((it.view.x + it.view.width / 2) / width.toFloat()) - heightRect
+                it.defaultY + curveBezierTop.getY((it.view.x + it.view.width / 2f) / width) - heightRect
         }
     }
-
-    class CurveBezier(
-        var Px0: Float,
-        var Py0: Float,
-        var Px1: Float,
-        var Py1: Float,
-        var Px2: Float,
-        var Py2: Float
-    ) {
-        fun getX(t: Float) = (1 - t) * (1 - t) * Px0 + 2 * t * (1 - t) * Px1 + t * t * Px2
-        fun getY(t: Float) = (1 - t) * (1 - t) * Py0 + 2 * t * (1 - t) * Py1 + t * t * Py2
-    }
-
-    data class SelectView(
-        val view: ImageView,
-        var defaultX: Float,
-        var defaultY: Float,
-        var select: Boolean
-    )
 
 }

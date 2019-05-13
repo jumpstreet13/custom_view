@@ -10,10 +10,10 @@
             android:id="@+id/customToolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:background_color="@android:color/black"
+            app:background_color="@android:color/white"
             app:duration="200"
-            app:select_color="@android:color/holo_green_dark"
-            app:unselect_color="@android:color/white"
+            app:select_color="@android:color/holo_red_dark"
+            app:unselect_color="@android:color/black"
             app:radius_gradient="80dp"/>
 
     <SeekBar
