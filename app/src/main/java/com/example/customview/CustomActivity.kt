@@ -1,5 +1,6 @@
 package com.example.customview
 
+import android.graphics.Color
 import android.os.Bundle
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +18,12 @@ class CustomActivity : AppCompatActivity() {
         customToolbar.addImage(R.drawable.ic_place)
 
         customToolbar.select(1)
+
+        customToolbar.setColorBackground(Color.WHITE)
+        customToolbar.setDuration(2000)
+        customToolbar.setUnselectColor(Color.BLUE)
+        customToolbar.setRadiusGradient(1000f)
+        customToolbar.setSeloctColor(Color.YELLOW)
 
         customToolbar.setOnPositionClickListener(OnPositionClickListener { position, _ ->
             //Toast.makeText(this, "$position", Toast.LENGTH_SHORT).show()

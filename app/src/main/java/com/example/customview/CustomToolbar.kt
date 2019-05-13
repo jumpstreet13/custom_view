@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.ImageView
+import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import kotlin.math.*
 
@@ -32,7 +33,7 @@ class CustomToolbar : FrameLayout {
 
     private var durationAnim = 400L//скорость анимации
     private val length = 50f//отступы от круга
-    private val radiusView = 60f//радиус большого круга
+    private var radiusView = 60f//радиус большого круга
     private var radiusGradient = 500f//радиус градиента
 
     private var colorBackground: Int = 0 //цвет фона
@@ -151,6 +152,10 @@ class CustomToolbar : FrameLayout {
                         ), this
                     )
             }
+        val sizeIv = if (iv.drawable.minimumHeight > iv.drawable.minimumWidth)
+            iv.drawable.minimumHeight else iv.drawable.minimumWidth
+        radiusView = if (sizeIv > radiusView) sizeIv.toFloat() else radiusView
+
         listView.add(SelectView(iv, 0f, 0f, false))
         listView.forEachIndexed { i, s ->
             s.view.setOnClickListener {
@@ -164,6 +169,32 @@ class CustomToolbar : FrameLayout {
 
     fun setOnPositionClickListener(listener: OnPositionClickListener) {
         this.clickListener = listener
+    }
+
+    fun setSeloctColor(@ColorInt color: Int) {
+        listView.forEach { v -> v.takeIf { it.select }?.view?.drawable?.setTint(color) }
+        backgroundPaint.color = color
+        colorSelect = color
+    }
+
+    fun setUnselectColor(@ColorInt color: Int) {
+        listView.forEach { v -> v.takeIf { !it.select }?.view?.drawable?.setTint(color) }
+        colorLinePaint.color = color
+        colorLineBottom = color
+    }
+
+    fun setDuration(duration: Long) {
+        durationAnim = duration
+    }
+
+    fun setColorBackground(@ColorInt color: Int) {
+        colorBackground = color
+        backgroundPaint.color = color
+    }
+
+    fun setRadiusGradient(radius: Float) {
+        radiusGradient = radius
+        invalidate()
     }
 
     fun select(position: Int) {
@@ -260,7 +291,9 @@ class CustomToolbar : FrameLayout {
 
         //относительные величины
         val center = (view.x + view.width / 2f) / width
+        //в зависимости от прогресса расстояние вычисляется расстояние справа
         val right = (view.x + view.width / 2 - (length + view.width / 2) * progress) / width
+        //в зависимости от прогресса расстояние вычисляется расстояние слева
         val left = (view.x + view.width / 2 + (length + view.width / 2) * progress) / width
 
         val rh = (view.x + view.width / 2 + radiusGradient) / width
