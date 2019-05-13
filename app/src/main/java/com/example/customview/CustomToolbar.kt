@@ -31,7 +31,7 @@ class CustomToolbar : FrameLayout {
     private val delta = resources.getDimension(R.dimen.delta)
     private val margin = resources.getDimension(R.dimen.margin_extra).toInt()
 
-    private var durationAnim = 400L//сорость анимации
+    private var durationAnim = 400L//скорость анимации
     private val length = 50f//отступы от круга
     private val radiusView = 60f//радиус большого круга
     private var radiusGradient = 500f//радиус градиента
@@ -120,8 +120,7 @@ class CustomToolbar : FrameLayout {
         canvas?.drawRect(0f, 0f, width.toFloat(), heightRect, backgroundPaint)
         canvas?.drawPath(pathRectBlue, backgroundPaint)
 
-        listView.find { it.select }
-            ?.let { drawShape(it.view, radiusView, canvas, progressAnim) }
+        listView.find { it.select }?.let { drawShape(it.view, radiusView, canvas, progressAnim) }
 
         canvas?.drawPath(pathRectWhite, colorLinePaint)
 
@@ -189,7 +188,7 @@ class CustomToolbar : FrameLayout {
         selectView.select = true
 
         val hs = (heightRect + selectView.view.height) / 2
-        val dhs = curveBezierTop.getY((selectView.view.x + selectView.view.width) / width) - curveBezierTop.Py0
+        val dhs = curveBezierTop.getY((selectView.view.x + selectView.view.width / 2) / width) - curveBezierTop.Py0
         val pathAnimSelect = Path().apply {
             moveTo(selectView.view.x, selectView.view.y)
             lineTo(selectView.view.x, hs + dhs)
@@ -247,10 +246,7 @@ class CustomToolbar : FrameLayout {
                 ObjectAnimator.ofObject(ArgbEvaluator(), colorSelect, colorLineBottom)
                     .apply {
                         duration = durationAnim
-                        addUpdateListener {
-                            val colorValue = it.animatedValue as Int
-                            v.view.drawable.setTint(colorValue)
-                        }
+                        addUpdateListener { v.view.drawable.setTint(it.animatedValue as Int) }
                         start()
                     }
             } else {
@@ -260,12 +256,13 @@ class CustomToolbar : FrameLayout {
         }
     }
 
-    private fun drawShape(view: View, R: Float, canvas: Canvas?, progress: Float) {
+    private fun drawShape(view: View, radius: Float, canvas: Canvas?, progress: Float) {
+        val R = radius * progress
 
         //относительные величины
         val center = (view.x + view.width / 2f) / width
-        val right = (view.x - length) / width
-        val left = (view.x + view.width + length) / width
+        val right = (view.x + view.width / 2 - (length + view.width / 2) * progress) / width
+        val left = (view.x + view.width / 2 + (length + view.width / 2) * progress) / width
 
         val rh = (view.x + view.width / 2 + radiusGradient) / width
         val lh = (view.x + view.width / 2 - radiusGradient) / width
@@ -276,17 +273,15 @@ class CustomToolbar : FrameLayout {
         //находим центр большого круга
         val x0 = curveBezierTop.getX(center)
         //расчитывае высоту в зависимости от прогреса анимации
-        val y0 = curveBezierTop.getY(center) + (1 - progress) * radiusView
-
+        val y0 = curveBezierTop.getY(center)
         //находим точки пересечения  левого маленького круга и кривой безье
         val xo1 = curveBezierTop.getX(left)
         //расчитывае высоту в зависимости от прогреса анимации
-        val yo1 = curveBezierTop.getY(left) + (1 - progress) * radiusView
-
+        val yo1 = curveBezierTop.getY(left)
         //находим точки пересечения правого маленького круга и кривой безье
         val xo2 = curveBezierTop.getX(right)
         //расчитывае высоту в зависимости от прогреса анимации
-        val yo2 = curveBezierTop.getY(right) + (1 - progress) * radiusView
+        val yo2 = curveBezierTop.getY(right)
 
         //точки для пересечения градиента и кривой безье
         val xlh = curveBezierTop.getX(lh)
@@ -380,10 +375,8 @@ class CustomToolbar : FrameLayout {
         )
 
 
-        //рисуем фигуру для цвета в зависимости от прогреса анимации
-        if (progress > 0.5) {
-            canvas?.drawPath(pathTr, colorLinePaint)
-        }
+        //рисуем фигуру для цвета
+        canvas?.drawPath(pathTr, colorLinePaint)
         //рисуем левый круг
         canvas?.drawCircle(x2, y2, Rml, gradientPaint)
         //русуем правый круг
