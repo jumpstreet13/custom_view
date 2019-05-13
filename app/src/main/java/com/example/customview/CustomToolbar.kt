@@ -171,7 +171,7 @@ class CustomToolbar : FrameLayout {
         this.clickListener = listener
     }
 
-    fun setSeloctColor(@ColorInt color: Int) {
+    fun setSelectColor(@ColorInt color: Int) {
         listView.forEach { v -> v.takeIf { it.select }?.view?.drawable?.setTint(color) }
         colorSelect = color
         invalidate()

@@ -21,8 +21,8 @@ class CustomActivity : AppCompatActivity() {
 
         backgroundOne.setOnClickListener { customToolbar.setColorBackground(Color.GREEN) }
         backgroundTwo.setOnClickListener { customToolbar.setColorBackground(Color.BLUE) }
-        selectOne.setOnClickListener { customToolbar.setSeloctColor(Color.RED) }
-        selectTwo.setOnClickListener { customToolbar.setSeloctColor(Color.YELLOW) }
+        selectOne.setOnClickListener { customToolbar.setSelectColor(Color.RED) }
+        selectTwo.setOnClickListener { customToolbar.setSelectColor(Color.YELLOW) }
         unselectOne.setOnClickListener { customToolbar.setUnselectColor(Color.BLACK) }
         unelectTwo.setOnClickListener { customToolbar.setUnselectColor(Color.WHITE) }
         durationOne.setOnClickListener { customToolbar.setDuration(2000) }
