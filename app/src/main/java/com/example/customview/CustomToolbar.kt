@@ -16,9 +16,10 @@ import kotlin.math.*
 
 class CustomToolbar : FrameLayout {
 
-    private val whitePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val bluePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val colorLinePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val gradientPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val redPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     private val pathRectBlue = Path()
     private val pathRectWhite = Path()
@@ -116,13 +117,13 @@ class CustomToolbar : FrameLayout {
 
         }
 
-        canvas?.drawRect(0f, 0f, width.toFloat(), heightRect, bluePaint)
-        canvas?.drawPath(pathRectBlue, bluePaint)
+        canvas?.drawRect(0f, 0f, width.toFloat(), heightRect, backgroundPaint)
+        canvas?.drawPath(pathRectBlue, backgroundPaint)
 
         listView.find { it.select }
             ?.let { drawShape(it.view, radiusView, canvas, progressAnim) }
 
-        canvas?.drawPath(pathRectWhite, whitePaint)
+        canvas?.drawPath(pathRectWhite, colorLinePaint)
 
     }
 
@@ -230,7 +231,7 @@ class CustomToolbar : FrameLayout {
 
         currentView?.let { v ->
             val hc = abs(heightRect - v.view.height) / 2
-            val dhc = curveBezierTop.getY((v.view.x + v.view.width) / width) - curveBezierTop.Py0
+            val dhc = curveBezierTop.getY((v.view.x + v.view.width / 2) / width) - curveBezierTop.Py0
             val pathAnimCurrent = Path().apply {
                 moveTo(v.view.x, v.view.y)
                 lineTo(v.view.x, hc + dhc)
@@ -287,7 +288,7 @@ class CustomToolbar : FrameLayout {
         //расчитывае высоту в зависимости от прогреса анимации
         val yo2 = curveBezierTop.getY(right) + (1 - progress) * radiusView
 
-        //точки для пересечения градиетна и кривой безье
+        //точки для пересечения градиента и кривой безье
         val xlh = curveBezierTop.getX(lh)
         val ylh = curveBezierTop.getY(lh)
         val xrh = curveBezierTop.getX(rh)
@@ -381,7 +382,7 @@ class CustomToolbar : FrameLayout {
 
         //рисуем фигуру для цвета в зависимости от прогреса анимации
         if (progress > 0.5) {
-            canvas?.drawPath(pathTr, whitePaint)
+            canvas?.drawPath(pathTr, colorLinePaint)
         }
         //рисуем левый круг
         canvas?.drawCircle(x2, y2, Rml, gradientPaint)
@@ -396,20 +397,25 @@ class CustomToolbar : FrameLayout {
             aos,
             aoc,
             true,
-            whitePaint
+            colorLinePaint
         )
 
     }
 
     private fun initPaint() {
 
-        bluePaint.apply {
+        redPaint.apply {
+            color = Color.RED
+            strokeWidth = 3f
+            style = Paint.Style.FILL
+        }
+        backgroundPaint.apply {
             color = colorBackground
             strokeWidth = 3f
             style = Paint.Style.FILL
         }
 
-        whitePaint.apply {
+        colorLinePaint.apply {
             color = colorLineBottom
             strokeWidth = 3f
             style = Paint.Style.FILL
