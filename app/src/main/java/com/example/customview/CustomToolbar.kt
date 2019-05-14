@@ -31,7 +31,7 @@ class CustomToolbar : FrameLayout {
     private val margin = resources.getDimension(R.dimen.margin_extra).toInt()
 
     private var durationAnim = 400L//скорость анимации
-    private val length = 50f//отступы от круга
+    private var borderRadius = 50f//отступы от круга
     private var radiusView = 60f//радиус большого круга
     private var radiusGradient = 500f//радиус градиента
 
@@ -87,13 +87,19 @@ class CustomToolbar : FrameLayout {
             Py1 = heightRect + delta
         }
 
-        listView.forEachIndexed { index, view ->
-            val defaultX = width * (index + 1) / (listView.size + 1f) - view.view.width
-            val defaultY = abs(heightRect - view.view.height) / 2
-            view.view.x = defaultX
-            view.view.y = defaultY
-            view.defaultX = defaultX
-            view.defaultY = defaultY
+        listView.forEachIndexed { index, value ->
+            with(value) {
+                val hs = (heightRect + view.height) / 2
+                val dhs = curveBezierTop.getY((view.x + view.width / 2) / width) - curveBezierTop.Py0
+
+                val defX = width * (index + 1) / (listView.size + 1f) - view.width
+                val defY = if (!select) abs(heightRect - view.height) / 2 else hs + dhs
+
+                view.x = defX
+                view.y = defY
+                defaultX = defX
+                defaultY = defY
+            }
         }
 
     }
@@ -198,17 +204,12 @@ class CustomToolbar : FrameLayout {
         invalidate()
     }
 
-    fun select(position: Int) {
-        /*viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {*/
-        select(position, false)
-        /*       viewTreeObserver.removeOnGlobalLayoutListener(this)
-            }
-        */
+    fun setBorderRadius(radius: Float) {
+        borderRadius = radius
+        invalidate()
     }
 
-
-    private fun select(position: Int, animation: Boolean) {
+    fun select(position: Int, animation: Boolean = false) {
 
         val currentView = listView.find { it.select }
         val selectView = listView[position]
@@ -296,9 +297,9 @@ class CustomToolbar : FrameLayout {
         //относительные величины
         val center = (view.x + view.width / 2f) / width
         //в зависимости от прогресса расстояние вычисляется расстояние справа
-        val right = (view.x + view.width / 2 - (length + view.width / 2) * progress) / width
+        val right = (view.x + view.width / 2 - (borderRadius + view.width / 2) * progress) / width
         //в зависимости от прогресса расстояние вычисляется расстояние слева
-        val left = (view.x + view.width / 2 + (length + view.width / 2) * progress) / width
+        val left = (view.x + view.width / 2 + (borderRadius + view.width / 2) * progress) / width
 
         val rh = (view.x + view.width / 2 + radiusGradient) / width
         val lh = (view.x + view.width / 2 - radiusGradient) / width
@@ -454,6 +455,7 @@ class CustomToolbar : FrameLayout {
             colorLineBottom = it.getColor(R.styleable.CustomToolbar_unselect_color, Color.WHITE)
             durationAnim = it.getInteger(R.styleable.CustomToolbar_duration, 400).toLong()
             radiusGradient = it.getDimension(R.styleable.CustomToolbar_radius_gradient, 300f)
+            borderRadius = it.getDimension(R.styleable.CustomToolbar_border_radius, 50f)
         }
         a?.recycle()
     }

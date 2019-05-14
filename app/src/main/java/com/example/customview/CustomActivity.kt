@@ -29,6 +29,8 @@ class CustomActivity : AppCompatActivity() {
         durationTwo.setOnClickListener { customToolbar.setDuration(200) }
         radiusOne.setOnClickListener { customToolbar.setRadiusGradient(1000f) }
         radiusTwo.setOnClickListener { customToolbar.setRadiusGradient(300f) }
+        borderOne.setOnClickListener { customToolbar.setBorderRadius(50f) }
+        borderTwo.setOnClickListener { customToolbar.setBorderRadius(150f) }
         btnSelect.setOnClickListener { customToolbar.select(3) }
 
         customToolbar.setOnPositionClickListener(OnPositionClickListener { position, _ ->

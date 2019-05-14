@@ -12,6 +12,7 @@
             android:layout_height="wrap_content"
             app:background_color="@android:color/holo_blue_dark"
             app:duration="200"
+            app:border_radius="40dp"
             app:select_color="@android:color/white"
             app:unselect_color="@android:color/darker_gray"
             app:radius_gradient="80dp"/>
@@ -95,6 +96,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="unse"/>
+
+    </LinearLayout>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+
+        <Button android:id="@+id/borderOne"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="bord"/>
+
+        <Button android:id="@+id/borderTwo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="bord"/>
 
     </LinearLayout>
     <Button android:id="@+id/btnSelect"
