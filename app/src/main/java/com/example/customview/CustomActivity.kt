@@ -29,6 +29,7 @@ class CustomActivity : AppCompatActivity() {
         durationTwo.setOnClickListener { customToolbar.setDuration(200) }
         radiusOne.setOnClickListener { customToolbar.setRadiusGradient(1000f) }
         radiusTwo.setOnClickListener { customToolbar.setRadiusGradient(300f) }
+        btnSelect.setOnClickListener { customToolbar.select(3) }
 
         customToolbar.setOnPositionClickListener(OnPositionClickListener { position, _ ->
             //Toast.makeText(this, "$position", Toast.LENGTH_SHORT).show()

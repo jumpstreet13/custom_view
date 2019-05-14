@@ -8,7 +8,6 @@ import android.util.AttributeSet
 import android.view.TouchDelegate
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.annotation.ColorInt
@@ -200,12 +199,12 @@ class CustomToolbar : FrameLayout {
     }
 
     fun select(position: Int) {
-        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                select(position, false)
-                viewTreeObserver.removeOnGlobalLayoutListener(this)
+        /*viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {*/
+        select(position, false)
+        /*       viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
-        })
+        */
     }
 
 
@@ -257,6 +256,7 @@ class CustomToolbar : FrameLayout {
             selectView.defaultY = hs
             selectView.view.drawable.setTint(colorSelect)
             selectView.view.y = hs + dhs
+            invalidate()
         }
 
 
@@ -284,6 +284,8 @@ class CustomToolbar : FrameLayout {
             } else {
                 v.defaultY = hc
                 v.view.drawable.setTint(colorLineBottom)
+                v.view.y = hc + dhc
+                invalidate()
             }
         }
     }
