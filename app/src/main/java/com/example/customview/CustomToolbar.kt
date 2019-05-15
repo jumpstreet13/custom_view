@@ -5,6 +5,7 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
+import android.util.Log
 import android.view.TouchDelegate
 import android.view.View
 import android.view.ViewGroup
@@ -30,10 +31,11 @@ class CustomToolbar : FrameLayout {
     private val delta = resources.getDimension(R.dimen.delta)
     private val margin = resources.getDimension(R.dimen.margin_extra).toInt()
 
-    private var durationAnim = 400L//скорость анимации
+    private var durationAnim = 200L//скорость анимации
     private var borderRadius = 50f//отступы от круга
     private var radiusView = 60f//радиус большого круга
     private var radiusGradient = 500f//радиус градиента
+    private var progress = 0f//изгиб кривой
 
     private var colorBackground: Int = 0 //цвет фона
     private var colorSelect: Int = 0 //цвет выделения
@@ -75,7 +77,7 @@ class CustomToolbar : FrameLayout {
             Px1 = width / 2f
             Px2 = width * 1f
             Py2 = heightRect
-            Py1 = heightRect
+            Py1 = heightRect * (1 + progress)
         }
 
         with(curveBezierBottom) {
@@ -84,16 +86,17 @@ class CustomToolbar : FrameLayout {
             Px1 = width / 2f
             Px2 = width * 1f
             Py2 = heightRect + delta
-            Py1 = heightRect + delta
+            Py1 = heightRect * (1 + progress) + delta
         }
 
         listView.forEachIndexed { index, value ->
             with(value) {
+                val hu = abs(heightRect - view.height) / 2
                 val hs = (heightRect + view.height) / 2
                 val dhs = curveBezierTop.getY((view.x + view.width / 2) / width) - curveBezierTop.Py0
 
                 val defX = width * (index + 1) / (listView.size + 1f) - view.width
-                val defY = if (!select) abs(heightRect - view.height) / 2 else hs + dhs
+                val defY = (if (!select) hu else hs) + dhs
 
                 view.x = defX
                 view.y = defY
@@ -129,13 +132,6 @@ class CustomToolbar : FrameLayout {
 
         canvas?.drawPath(pathRectWhite, colorLinePaint)
 
-    }
-
-    fun setProgress(progress: Float) {
-        curveBezierTop.Py1 = heightRect * (1 + progress)
-        curveBezierBottom.Py1 = heightRect * (1 + progress) + delta
-        changeView()
-        invalidate()
     }
 
     fun addImage(@DrawableRes idRes: Int) {
@@ -175,6 +171,16 @@ class CustomToolbar : FrameLayout {
     fun setOnPositionClickListener(listener: OnPositionClickListener) {
         this.clickListener = listener
     }
+
+    fun setProgress(progress: Float) {
+        this.progress = progress
+        curveBezierTop.Py1 = heightRect * (1 + progress)
+        curveBezierBottom.Py1 = heightRect * (1 + progress) + delta
+        changeView()
+        invalidate()
+    }
+
+    fun getProgress() = progress
 
     fun setSelectColor(@ColorInt color: Int) {
         listView.forEach { v -> v.takeIf { it.select }?.view?.drawable?.setTint(color) }
@@ -453,9 +459,10 @@ class CustomToolbar : FrameLayout {
             colorSelect = it.getColor(R.styleable.CustomToolbar_select_color, Color.RED)
             colorBackground = it.getColor(R.styleable.CustomToolbar_background_color, Color.BLUE)
             colorLineBottom = it.getColor(R.styleable.CustomToolbar_unselect_color, Color.WHITE)
-            durationAnim = it.getInteger(R.styleable.CustomToolbar_duration, 400).toLong()
+            durationAnim = it.getInteger(R.styleable.CustomToolbar_duration, 200).toLong()
             radiusGradient = it.getDimension(R.styleable.CustomToolbar_radius_gradient, 300f)
             borderRadius = it.getDimension(R.styleable.CustomToolbar_border_radius, 50f)
+            progress = it.getFloat(R.styleable.CustomToolbar_progress, 0f)
         }
         a?.recycle()
     }

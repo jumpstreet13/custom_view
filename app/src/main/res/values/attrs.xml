@@ -8,6 +8,7 @@
         <attr name="duration" format="integer"/>
         <attr name="radius_gradient" format="dimension"/>
         <attr name="border_radius" format="dimension"/>
+        <attr name="progress" format="float"/>
     </declare-styleable>
 
 </resources>

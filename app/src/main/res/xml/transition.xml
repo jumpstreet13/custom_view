@@ -3,49 +3,42 @@
              xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <Transition
-            app:duration="1000">
+            app:constraintSetStart="@id/start"
+            app:constraintSetEnd="@id/end">
 
-        <!--<OnSwipe
+        <OnSwipe
                 app:dragDirection="dragUp"
-                app:touchAnchorId="@position/rvMy"
-                app:touchAnchorSide="top"/>-->
+                app:touchAnchorId="@id/rvExample"
+                app:touchAnchorSide="top"/>
 
     </Transition>
 
-    <!--<ConstraintSet android:position="@+position/end">
-
+    <ConstraintSet android:id="@+id/start">
         <Constraint
-                android:position="@+position/arcView"
-                android:layout_width="0dp"
+                android:id="@+id/customToolbar"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
-
             <CustomAttribute
-                    app:attributeName="arcHeightDp"
-                    app:customFloatValue="60"/>
-
+                    app:attributeName="progress"
+                    app:customFloatValue="0"/>
         </Constraint>
-
     </ConstraintSet>
 
-    <ConstraintSet android:position="@+position/start">
-
+    <ConstraintSet android:id="@+id/end">
         <Constraint
-                android:position="@+position/arcView"
-                android:layout_width="0dp"
+                android:id="@+id/customToolbar"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
-
             <CustomAttribute
-                    app:attributeName="arcHeightDp"
-                    app:customFloatValue="0"/>
-
+                    app:attributeName="progress"
+                    app:customFloatValue="1"/>
         </Constraint>
-
-    </ConstraintSet>-->
+    </ConstraintSet>
 
 </MotionSceen>
