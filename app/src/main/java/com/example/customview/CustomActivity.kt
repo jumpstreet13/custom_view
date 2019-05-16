@@ -1,7 +1,10 @@
 package com.example.customview
 
 import android.graphics.Color
+import android.graphics.Outline
 import android.os.Bundle
+import android.view.View
+import android.view.ViewOutlineProvider
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_custom.*
@@ -19,7 +22,7 @@ class CustomActivity : AppCompatActivity() {
 
         customToolbar.select(1)
 
-        backgroundOne.setOnClickListener { customToolbar.setColorBackground(Color.GREEN) }
+        /*backgroundOne.setOnClickListener { customToolbar.setColorBackground(Color.GREEN) }
         backgroundTwo.setOnClickListener { customToolbar.setColorBackground(Color.BLUE) }
         selectOne.setOnClickListener { customToolbar.setSelectColor(Color.RED) }
         selectTwo.setOnClickListener { customToolbar.setSelectColor(Color.YELLOW) }
@@ -31,7 +34,7 @@ class CustomActivity : AppCompatActivity() {
         radiusTwo.setOnClickListener { customToolbar.setRadiusGradient(300f) }
         borderOne.setOnClickListener { customToolbar.setBorderRadius(50f) }
         borderTwo.setOnClickListener { customToolbar.setBorderRadius(150f) }
-        btnSelect.setOnClickListener { customToolbar.select(3) }
+        btnSelect.setOnClickListener { customToolbar.select(3) }*/
 
         customToolbar.setOnPositionClickListener(OnPositionClickListener { position, _ ->
             //Toast.makeText(this, "$position", Toast.LENGTH_SHORT).show()

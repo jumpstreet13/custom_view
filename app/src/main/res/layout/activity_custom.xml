@@ -10,12 +10,7 @@
             android:id="@+id/customToolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:background_color="@android:color/holo_blue_dark"
-            app:duration="200"
-            app:border_radius="40dp"
-            app:select_color="@android:color/white"
-            app:unselect_color="@android:color/darker_gray"
-            app:radius_gradient="80dp"/>
+            app:duration="200"/>
 
     <SeekBar
             android:id="@+id/seekBar"
@@ -23,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    <LinearLayout android:layout_width="match_parent"
+    <!--<LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:orientation="horizontal">
 
@@ -116,6 +111,6 @@
     </LinearLayout>
     <Button android:id="@+id/btnSelect"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"/>-->
 
 </LinearLayout>

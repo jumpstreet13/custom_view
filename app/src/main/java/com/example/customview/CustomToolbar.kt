@@ -5,7 +5,6 @@ import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
-import android.util.Log
 import android.view.TouchDelegate
 import android.view.View
 import android.view.ViewGroup
