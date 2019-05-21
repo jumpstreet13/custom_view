@@ -29,6 +29,9 @@
 
         <activity android:name=".ExampleActivity"
                   android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".ShadeActivity"/>
+
     </application>
 
 </manifest>

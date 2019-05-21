@@ -468,8 +468,8 @@ class CustomToolbar : FrameLayout {
 
     private fun initView() {
         minimumHeight = resources.getDimension(R.dimen.toolbar_height).toInt()
-        curveBezierTop = CurveBezier(0f, 0f, 0f, 0f, 0f, 0f)
-        curveBezierBottom = CurveBezier(0f, 0f, 0f, 0f, 0f, 0f)
+        curveBezierTop = CurveBezier()
+        curveBezierBottom = CurveBezier()
     }
 
     private fun changeView() {
