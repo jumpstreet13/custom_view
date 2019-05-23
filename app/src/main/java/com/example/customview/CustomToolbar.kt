@@ -20,9 +20,14 @@ class CustomToolbar : FrameLayout {
     private val backgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val gradientPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
+    private val grayPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val greenPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val yellowPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val redPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val whitePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val blackPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+
     private val pathRectBlue = Path()
-    private val pathRectWhite = Path()
-    private val pathTr = Path()
 
     private val listView = mutableListOf<SelectView>()
 
@@ -113,23 +118,13 @@ class CustomToolbar : FrameLayout {
             reset()
             moveTo(curveBezierTop.Px0, curveBezierTop.Py0)
             quadTo(curveBezierTop.Px1, curveBezierTop.Py1, curveBezierTop.Px2, curveBezierTop.Py2)
+            lineTo(curveBezierTop.Px2, 0f)
+            lineTo(0f, 0f)
         }
 
-        with(pathRectWhite) {
-            reset()
-            moveTo(curveBezierTop.Px0, curveBezierTop.Py0)
-            quadTo(curveBezierTop.Px1, curveBezierTop.Py1, curveBezierTop.Px2, curveBezierTop.Py2)
-            lineTo(curveBezierBottom.Px2, curveBezierBottom.Py2)
-            quadTo(curveBezierBottom.Px1, curveBezierBottom.Py1, curveBezierBottom.Px0, curveBezierBottom.Py0)
-
-        }
-
-        canvas?.drawRect(0f, 0f, width.toFloat(), heightRect, backgroundPaint)
         canvas?.drawPath(pathRectBlue, backgroundPaint)
 
         listView.find { it.select }?.let { drawShape(it.view, radiusView, canvas, progressAnim) }
-
-        canvas?.drawPath(pathRectWhite, colorLinePaint)
 
     }
 
@@ -302,9 +297,9 @@ class CustomToolbar : FrameLayout {
         //относительные величины
         val center = (view.x + view.width / 2f) / width
         //в зависимости от прогресса расстояние вычисляется расстояние справа
-        val right = (view.x + view.width / 2 - (borderRadius + view.width / 2) * progress) / width
+        val right = (view.x + view.width / 2 - (borderRadius + R / 2) * progress) / width
         //в зависимости от прогресса расстояние вычисляется расстояние слева
-        val left = (view.x + view.width / 2 + (borderRadius + view.width / 2) * progress) / width
+        val left = (view.x + view.width / 2 + (borderRadius + R / 2) * progress) / width
 
         val rh = (view.x + view.width / 2 + radiusGradient) / width
         val lh = (view.x + view.width / 2 - radiusGradient) / width
@@ -363,16 +358,21 @@ class CustomToolbar : FrameLayout {
         val s = (Rml * Rml - R * R - xdl * xdl - ydl * ydl) / (2 * xdl)
         val z = ydl / xdl
         //точки пересечения правого и центрального кругов
-        val yt = s * z / (1 + z * z)
-        val xt = (Rml * Rml - R * R - xdl * xdl - 2 * ydl * yt - ydl * ydl) / (2 * xdl)
+        val yt1 = s * z / (1 + z * z)
+        val xt1 = (Rml * Rml - R * R - xdl * xdl - 2 * ydl * yt1 - ydl * ydl) / (2 * xdl)
+
+        val yt = y0 + yt1
+        val xt = x0 + xt1
 
         val xdr = x0 - x3
         val ydr = y0 - y3
         val u = (Rmr * Rmr - R * R - xdr * xdr - ydr * ydr) / (2 * xdr)
         val j = ydr / xdr
         //точки пересечения левого и центрального кругов
-        val yk = u * j / (1 + j * j)
-        val xk = (Rmr * Rmr - R * R - xdr * xdr - 2 * ydr * yk - ydr * ydr) / (2 * xdr)
+        val yk1 = u * j / (1 + j * j)
+        val xk1 = (Rmr * Rmr - R * R - xdr * xdr - 2 * ydr * yk1 - ydr * ydr) / (2 * xdr)
+        val yk = y0 + yk1
+        val xk = x0 + xk1
 
         val ac = sqrt((x0 - xlh) * (x0 - xlh) + (y0 - ylh) * (y0 - ylh))
         val bc = sqrt((x0 - xrh) * (x0 - xrh) + (y0 - yrh) * (y0 - yrh))
@@ -385,41 +385,8 @@ class CustomToolbar : FrameLayout {
         //на сколько градусов рисуется градиент
         val aoc = 180 - asin(sins) / PI.toFloat() * 180 + asin(sinb) / PI.toFloat() * 180 + 10f
 
-        //строим фигуру для прикрывания цвета
-        pathTr.reset()
-        pathTr.moveTo(x0 + xt, y0 + yt)
-        pathTr.lineTo(x0 + xk, y0 + yk)
-        pathTr.lineTo(xo2, yo2)
-        pathTr.lineTo(xo2, if (center > 0.5f) 2 * yo2 - y0 else 2 * y0 - yo2)
-        pathTr.lineTo(xo1, if (center > 0.5f) 2 * y0 - yo1 else 2 * yo1 - y0)
-        pathTr.lineTo(xo1, yo1)
-
-        //шаблон градиента
-        gradientPaint.shader = RadialGradient(
-            x0,
-            y0,
-            radiusGradient * if (progress == 0f) 0.0001f else progress,
-            colorSelect,
-            colorBackground,
-            android.graphics.Shader.TileMode.CLAMP
-        )
-
-        //рисуем градиент
-        canvas?.drawArc(
-            x0 - radiusGradient,
-            y0 - radiusGradient,
-            x0 + radiusGradient,
-            y0 + radiusGradient,
-            aos,
-            aoc,
-            true,
-            gradientPaint
-        )
-
-        //рисуем фигуру для цвета
-        canvas?.drawPath(pathTr, colorLinePaint)
         //рисуем левый круг
-        canvas?.drawCircle(x2, y2, Rml, gradientPaint)
+        /*canvas?.drawCircle(x2, y2, Rml, gradientPaint)
         //русуем правый круг
         canvas?.drawCircle(x3, y3, Rmr, gradientPaint)
         //рисуем центральный полукруг
@@ -432,7 +399,14 @@ class CustomToolbar : FrameLayout {
             aoc,
             true,
             colorLinePaint
-        )
+        )*/
+
+        canvas?.drawCircle(xo1, yo1, 5f, grayPaint)
+        canvas?.drawCircle(xo2, yo2, 5f, greenPaint)
+        canvas?.drawCircle(x2, y2, 5f, whitePaint)
+        canvas?.drawCircle(x3, y3, 5f, blackPaint)
+        canvas?.drawCircle(xt, yt, 5f, yellowPaint)
+        canvas?.drawCircle(xk, yk, 5f, redPaint)
 
     }
 
@@ -446,6 +420,37 @@ class CustomToolbar : FrameLayout {
 
         colorLinePaint.apply {
             color = colorLineBottom
+            strokeWidth = 3f
+            style = Paint.Style.FILL
+        }
+
+        grayPaint.apply {
+            color = Color.GRAY
+            strokeWidth = 3f
+            style = Paint.Style.FILL
+        }
+        greenPaint.apply {
+            color = Color.GREEN
+            strokeWidth = 3f
+            style = Paint.Style.FILL
+        }
+        yellowPaint.apply {
+            color = Color.YELLOW
+            strokeWidth = 3f
+            style = Paint.Style.FILL
+        }
+        redPaint.apply {
+            color = Color.RED
+            strokeWidth = 3f
+            style = Paint.Style.FILL
+        }
+        whitePaint.apply {
+            color = Color.WHITE
+            strokeWidth = 3f
+            style = Paint.Style.FILL
+        }
+        blackPaint.apply {
+            color = Color.BLACK
             strokeWidth = 3f
             style = Paint.Style.FILL
         }

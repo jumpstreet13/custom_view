@@ -30,7 +30,10 @@ class ShadeView : View {
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
 
-        path.addOval(0f, 0f, width.toFloat(), height / 2f, Path.Direction.CCW)
+        with(path) {
+            moveTo(0f, 0f)
+            quadTo(height / 2f, width / 2f, width.toFloat(), 0f)
+        }
 
         canvas?.drawPath(path, paint)
     }
