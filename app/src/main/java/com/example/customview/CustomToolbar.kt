@@ -495,8 +495,8 @@ class CustomToolbar : FrameLayout {
     private fun initAttrs(attrs: AttributeSet?) {
         val a = context?.obtainStyledAttributes(attrs, R.styleable.CustomToolbar)
         a?.let {
-            colorSelect = it.getColor(R.styleable.CustomToolbar_select_color, Color.RED)
-            colorBackground = it.getColor(R.styleable.CustomToolbar_background_color, Color.BLUE)
+            colorSelect = it.getColor(R.styleable.CustomToolbar_select_color, Color.BLUE)
+            colorBackground = it.getColor(R.styleable.CustomToolbar_background_color, Color.BLACK)
             colorLineBottom = it.getColor(R.styleable.CustomToolbar_unselect_color, Color.WHITE)
             durationAnim = it.getInteger(R.styleable.CustomToolbar_duration, 200).toLong()
             radiusGradient = it.getDimension(R.styleable.CustomToolbar_radius_gradient, 300f)
